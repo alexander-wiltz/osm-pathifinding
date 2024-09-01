@@ -1,28 +1,24 @@
 function getFormData() {
-    let start = document.getElementById("input-start").value;
-    let target = document.getElementById("input-ziel").value;
+    let startInputForm = document.getElementById("input-start").value;
+    let targetInputForm = document.getElementById("input-ziel").value;
     let type = document.querySelector('input[name="check-radio"]:checked').value;
 
-    try {
-        start = start.toLowerCase().replace(" ", "+");
-        target = target.toLowerCase().replace(" ", "+");
-    } catch (error) {
-        return;
+    let start = parseAddress(startInputForm);
+    let target = parseAddress(targetInputForm);
+
+    if (start.error) {
+        console.error("Fehler beim Adress-Parsing:", start.error);
+        alert(`Die eingegebene Adresse ist ungültig: ${start.error}`);
+    } else if (target.error) {
+        console.error("Fehler beim Adress-Parsing:", target.error);
+        alert(`Die eingegebene Adresse ist ungültig: ${target.error}`);
+    } else {
+        getComputedWayFromApi(start.street, start.houseNumber, target.street, target.houseNumber);
     }
 
-    callApis(start, target, type).then(r =>
-        function() {}
-    );
-
 }
 
-async function callApis(start, target, type) {
-    console.log("Asynchronous loading.");
-    await getComputedWayFromApi(start, target, type);
-    await getComputedWayFromApiClearText(start, target, type);
-}
-
-function getComputedWayFromApi(start, target, type) {
+function getComputedWayFromApi(start, startNo, target, targetNo) {
     let xmlhttp = new XMLHttpRequest();
 
     xmlhttp.onreadystatechange = function () {
@@ -54,14 +50,16 @@ function getComputedWayFromApi(start, target, type) {
         }
     }
 
-    let url = `http://localhost:8081/api/v1/way?start=${start}&target=${target}&type=${type}`;
+    /**
+     * @PathParam("stStr") String startStreet
+     * @PathParam("stNo") String startNumber
+     * @PathParam("tgStr") String targetStreet
+     * @PathParam("tgNo") String targetNumber
+     */
+    let url = `http://localhost:8081/pathfinding?stStr=${start}&stNo=${startNo}&tgStr=${target}&tgNo=${targetNo}`;
 
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
-}
-
-function getComputedWayFromApiClearText(start, target, type) {
-    console.log("Response: Clear way...")
 }
 
 /**
@@ -86,4 +84,25 @@ function computeHeuristic(features) {
     let targetLatLng = L.latLng(target[0], target[1]);
     let heuristic = startLatLng.distanceTo(targetLatLng).toFixed(3);
     console.log("Luftlinie " + heuristic + "m");
+}
+
+function parseAddress(address) {
+    // Regulärer Ausdruck zum Parsen der Adresse (Straße und Hausnummer)
+    // Formatbeispiele: "Musterstraße 123", "Musterstraße 123A", "Musterstraße 12B"
+    const regex = /^(.+?)\s+(\d+[a-zA-Z]?)$/;
+    const match = address.trim().match(regex);
+
+    if (!match) {
+        return {
+            error: "Ungültige Adresse. Bitte im Format 'Straßenname Hausnummer' eingeben."
+        };
+    }
+
+    const street = match[1].trim();
+    const houseNumber = match[2].trim();
+
+    return {
+        street,
+        houseNumber
+    };
 }
