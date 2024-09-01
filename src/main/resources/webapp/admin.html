@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Wegfinder -> Admin</title>
+  <link rel="icon" type="image/x-icon" href="./img/wandering_96.ico">
+
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/leaflet.css"/>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="p-3 m-0 border-0 text-bg-dark">
+  <div class="container">
+    <h1>Admin Panel</h1>
+    <hr>
+    <div class="accordion" id="accordionShowData">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOsmFile" aria-expanded="false" aria-controls="collapseOsmFile">
+            Upload osm data to database
+          </button>
+        </h2>
+        <div id="collapseOsmFile" class="accordion-collapse collapse" data-bs-parent="#accordionShowData">
+          <div class="accordion-body">
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" aria-label="Text input with dropdown button">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">File action</button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#">Open</a></li>
+                <li><a class="dropdown-item" href="#">Upload</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNodes" aria-expanded="false" aria-controls="collapseNodes">
+            Show all nodes from database
+          </button>
+        </h2>
+        <div id="collapseNodes" class="accordion-collapse collapse" data-bs-parent="#accordionShowData">
+          <div class="accordion-body">
+            <strong>Fixed window size, scrollable.</strong>
+            Table with all data in it. Load first 100, then during scroll down, load next 100 at pos x90.
+            <table class="table table-sm table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Id</th>
+                  <th>Lat</th>
+                  <th>Lon</th>
+                </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>1</td>
+                <td>24235435</td>
+                <td>49.4567</td>
+                <td>6.4323</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWays" aria-expanded="false" aria-controls="collapseWays">
+            Show all ways from database
+          </button>
+        </h2>
+        <div id="collapseWays" class="accordion-collapse collapse" data-bs-parent="#accordionShowData">
+          <div class="accordion-body">
+            <table class="table table-sm table-striped table-hover">
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Nodes</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td>1</td>
+                <td>24235435</td>
+                <td>Herderweg</td>
+                <td>
+                  35235454<br>
+                  345456546<br>
+                  354522667<br>
+                  54453234<br>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="./js/bootstrap.min.js"></script>
+</html>
