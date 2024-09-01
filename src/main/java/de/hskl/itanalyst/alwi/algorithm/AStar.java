@@ -6,11 +6,10 @@ import java.util.*;
 
 public class AStar {
     public List<NodeDTO> findPath(Graph graph, NodeDTO start, NodeDTO goal) {
-        Map<NodeDTO, NodeDTO> cameFrom = new HashMap<>(); // um den Pfad zurückzuverfolgen
-        Map<NodeDTO, Double> gScore = new HashMap<>(); // Kosten vom Startknoten bis zu einem bestimmten Knoten
-        Map<NodeDTO, Double> fScore = new HashMap<>(); // gScore + Heuristik (Schätzung der Restkosten)
+        Map<NodeDTO, NodeDTO> cameFrom = new HashMap<>();
+        Map<NodeDTO, Double> gScore = new HashMap<>();
+        Map<NodeDTO, Double> fScore = new HashMap<>();
 
-        // PriorityQueue für die offenen Knoten basierend auf der Kostensumme (f(n))
         PriorityQueue<NodeDTO> openSet = new PriorityQueue<>(Comparator.comparingDouble(n -> fScore.getOrDefault(n, Double.POSITIVE_INFINITY)));
 
         for (NodeDTO nodeDTO : graph.getNodes()) {
@@ -44,7 +43,7 @@ public class AStar {
             }
         }
 
-        return Collections.emptyList(); // falls kein Pfad gefunden wurde
+        return Collections.emptyList();
     }
 
     private List<NodeDTO> reconstructPath(Map<NodeDTO, NodeDTO> cameFrom, NodeDTO current) {
