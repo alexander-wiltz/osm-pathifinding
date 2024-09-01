@@ -38,4 +38,8 @@ public class StreetService {
     public Optional<StreetDTO> findStreetById(Long id) {
         return streetRepository.findById(id);
     }
+
+    public List<StreetDTO> findByStreet(String name) {
+        return streetRepository.findByStreet(name);
+    }
 }
