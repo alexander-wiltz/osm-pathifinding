@@ -1,5 +1,6 @@
 package de.hskl.itanalyst.alwi.utilities;
 
+import de.hskl.itanalyst.alwi.algorithm.Heuristics;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.dto.WayDTO;
@@ -266,6 +267,28 @@ public class ObjectHandler {
         }
 
         return null;
+    }
+
+    /**
+     * Find the closest Node from a building to the street
+     *
+     * @param streetNodes
+     * @param targetNode
+     * @return Closest Node
+     */
+    private NodeDTO findClosestNode(NodeDTO targetNode, List<NodeDTO> streetNodes) {
+        NodeDTO closestNode = null;
+        double minDistance = Double.MAX_VALUE;
+
+        for (NodeDTO streetNode : streetNodes) {
+            double distance = Heuristics.distanceTo(targetNode, streetNode);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestNode = streetNode;
+            }
+        }
+
+        return closestNode;
     }
 
     //endregion
