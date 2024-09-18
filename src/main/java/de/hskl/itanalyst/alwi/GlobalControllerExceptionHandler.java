@@ -7,12 +7,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * ControllerAdvice for Exception-handling
- *
- * @author Alexander Wiltz
- * @version 0.1.0
- */
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
 

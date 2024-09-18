@@ -1,9 +1,11 @@
 package de.hskl.itanalyst.alwi.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import de.hskl.itanalyst.alwi.algorithm.interfaces.IGraphNode;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
@@ -13,7 +15,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class NodeDTO {
+public class NodeDTO implements Serializable, IGraphNode {
 
     @Id
     @NonNull
@@ -32,4 +34,9 @@ public class NodeDTO {
     @ToString.Exclude
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "nodes")
     private Set<StreetDTO> streets;
+
+    @Override
+    public Long getId() {
+        return id;
+    }
 }

@@ -10,12 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.StringReader;
 
 
-/**
- * Class for handling xml messages
- *
- * @author Alexander Wiltz
- * @version 0.1.0
- */
 @Slf4j
 public class XmlHandler {
 

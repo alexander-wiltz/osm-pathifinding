@@ -4,12 +4,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-/**
- * Just for Simple Geometries
- *
- * @author Alexander Wiltz
- * @version 0.1.0
- */
 @Getter
 @Setter
 public class GeoJsonFeature {

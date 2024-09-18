@@ -9,9 +9,6 @@ import java.util.List;
 /**
  * <a href="https://geojson.org/">https://geojson.org/</a>
  * <a href="https://de.wikipedia.org/wiki/GeoJSON">https://de.wikipedia.org/wiki/GeoJSON</a>
- *
- * @author Alexander Wiltz
- * @version 0.1.0
  */
 @Getter
 @Setter

@@ -1,6 +1,5 @@
 package de.hskl.itanalyst.alwi.utilities;
 
-import de.hskl.itanalyst.alwi.algorithm.Heuristics;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.dto.WayDTO;
@@ -9,16 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Class for handling xml and street objects
- *
- * @author Alexander Wiltz
- * @version 0.1.0
- */
 @Slf4j
 @NoArgsConstructor
 public class ObjectHandler {
@@ -267,28 +259,6 @@ public class ObjectHandler {
         }
 
         return null;
-    }
-
-    /**
-     * Find the closest Node from a building to the street
-     *
-     * @param streetNodes
-     * @param targetNode
-     * @return Closest Node
-     */
-    private NodeDTO findClosestNode(NodeDTO targetNode, List<NodeDTO> streetNodes) {
-        NodeDTO closestNode = null;
-        double minDistance = Double.MAX_VALUE;
-
-        for (NodeDTO streetNode : streetNodes) {
-            double distance = Heuristics.distanceTo(targetNode, streetNode);
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestNode = streetNode;
-            }
-        }
-
-        return closestNode;
     }
 
     //endregion

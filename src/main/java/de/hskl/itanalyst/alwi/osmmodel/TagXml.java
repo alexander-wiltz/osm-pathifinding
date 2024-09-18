@@ -7,13 +7,6 @@ import lombok.*;
 
 import java.io.Serializable;
 
-/**
- * XML-Tag-Element of osm-File
- * located in way-xml
- *
- * @author Alexander Wiltz
- * @version 0.1.0
- */
 @Getter
 @Setter
 @ToString

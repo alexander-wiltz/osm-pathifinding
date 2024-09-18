@@ -16,12 +16,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * Reading osm-files and preparing for database integration
- *
- * @author Alexander Wiltz
- * @version 0.1.0
- */
 @Slf4j
 @Component
 public class FileHandler {

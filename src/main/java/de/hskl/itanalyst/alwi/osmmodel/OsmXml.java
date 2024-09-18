@@ -9,13 +9,6 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * XML-Root-Element of osm-File
- *
- *
- * @author Alexander Wiltz
- * @version 0.1.0
- */
 @Getter
 @Setter
 @ToString
