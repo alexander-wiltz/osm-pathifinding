@@ -1,7 +1,7 @@
 // Startview
 // TODO Zentrum muss ermittelt werden über euklidische Distanz zwischen Start und Ziel
 
-var map = L.map('map').setView([49.236263, 6.706023], 15);
+var map = L.map('map').setView([49.235812, 6.706272], 16);
 
 // basic rendering
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
