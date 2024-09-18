@@ -1,7 +1,8 @@
 function getFormData() {
     let startInputForm = document.getElementById("input-start").value;
     let targetInputForm = document.getElementById("input-ziel").value;
-    let type = document.querySelector('input[name="check-radio"]:checked').value;
+
+    //let type = document.querySelector('input[name="check-radio"]:checked').value;
 
     let start = parseAddress(startInputForm);
     let target = parseAddress(targetInputForm);
