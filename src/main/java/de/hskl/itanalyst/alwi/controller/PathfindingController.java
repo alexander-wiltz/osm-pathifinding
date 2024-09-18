@@ -1,6 +1,7 @@
 package de.hskl.itanalyst.alwi.controller;
 
 import de.hskl.itanalyst.alwi.algorithm.AStar;
+import de.hskl.itanalyst.alwi.algorithm.Graph;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
@@ -8,6 +9,7 @@ import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
 import de.hskl.itanalyst.alwi.geomodel.GeoJsonObject;
 import de.hskl.itanalyst.alwi.services.GeoJsonService;
+import de.hskl.itanalyst.alwi.services.NodeService;
 import de.hskl.itanalyst.alwi.services.StreetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -34,7 +34,13 @@ public class PathfindingController extends BaseController {
     private StreetService streetService;
 
     @Autowired
+    private NodeService nodeService;
+
+    @Autowired
     private GeoJsonService geoJsonService;
+
+    @Autowired
+    private AStar aStarAlgorithm;
 
     @Operation(summary = "Compute way and respond with GeoJson-Object.")
     @ApiResponse(responseCode = "200", description = "GeoJson Object successfully created.")
@@ -63,22 +69,11 @@ public class PathfindingController extends BaseController {
         NodeDTO startNode = getStreetObject(startStreet, startNumber, startStreets);
         NodeDTO targetNode = getStreetObject(targetStreet, targetNumber, targetStreets);
 
-        List<NodeDTO> route = new ArrayList<>();
-        AStar aStar = new AStar();
-        List<NodeDTO> path = aStar.findPath(null, startNode, targetNode);
+        List<StreetDTO> streets = streetService.findAllStreets();
+        List<NodeDTO> nodes = nodeService.findAllNodes();
 
-        // TODO compute Route!
-        route.add(new NodeDTO(1L, 6.707762, 49.234920));
-        route.add(new NodeDTO(2L, 6.706711, 49.234899));
-        route.add(new NodeDTO(3L, 6.706695, 49.235384));
-        route.add(new NodeDTO(4L, 6.705992, 49.235391));
-        route.add(new NodeDTO(5L, 6.705496, 49.235382));
-        route.add(new NodeDTO(6L, 6.704935, 49.235380));
-        route.add(new NodeDTO(7L, 6.704672, 49.235386));
-        route.add(new NodeDTO(8L, 6.704667, 49.235508));
-        route.add(new NodeDTO(9L, 6.703940, 49.235515));
-        route.add(new NodeDTO(10L, 6.703921, 49.235876));
-        route.add(new NodeDTO(11L, 6.703927, 49.235918));
+        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
+        List<NodeDTO> route = aStarAlgorithm.findRoute(graph, startNode.getId(), targetNode.getId());
 
         GeoJsonObject geoJsonObject = geoJsonService.createGeoJsonObject(startNode, targetNode, route);
 
