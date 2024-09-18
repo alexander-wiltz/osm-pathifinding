@@ -35,42 +35,11 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNodes" aria-expanded="false" aria-controls="collapseNodes">
-            Show all nodes from database
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStreets" aria-expanded="false" aria-controls="collapseStreets">
+            Strassenverzeichnis
           </button>
         </h2>
-        <div id="collapseNodes" class="accordion-collapse collapse" data-bs-parent="#accordionShowData">
-          <div class="accordion-body">
-            <strong>Fixed window size, scrollable.</strong>
-            Table with all data in it. Load first 100, then during scroll down, load next 100 at pos x90.
-            <table class="table table-sm table-striped table-hover">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Id</th>
-                  <th>Lat</th>
-                  <th>Lon</th>
-                </tr>
-              </thead>
-              <tbody>
-              <tr>
-                <td>1</td>
-                <td>24235435</td>
-                <td>49.4567</td>
-                <td>6.4323</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWays" aria-expanded="false" aria-controls="collapseWays">
-            Show all ways from database
-          </button>
-        </h2>
-        <div id="collapseWays" class="accordion-collapse collapse" data-bs-parent="#accordionShowData">
+        <div id="collapseStreets" class="accordion-collapse collapse" data-bs-parent="#accordionShowData">
           <div class="accordion-body">
             <table class="table table-sm table-striped table-hover">
               <thead>
@@ -78,7 +47,7 @@
                 <th>#</th>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Nodes</th>
+                <th>Hausnummer</th>
               </tr>
               </thead>
               <tbody>
@@ -86,12 +55,13 @@
                 <td>1</td>
                 <td>24235435</td>
                 <td>Herderweg</td>
-                <td>
-                  35235454<br>
-                  345456546<br>
-                  354522667<br>
-                  54453234<br>
-                </td>
+                <td>9</td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>24235435</td>
+                <td>Herderweg</td>
+                <td>10</td>
               </tr>
               </tbody>
             </table>
