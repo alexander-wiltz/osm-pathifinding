@@ -24,17 +24,9 @@ public class StreetController extends BaseController {
     @Autowired
     private StreetService streetService;
 
-    @Operation(summary = "Add street.")
-    @ApiResponse(responseCode = "201", description = "Street added successfully.")
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StreetDTO> addStreet(@Valid @RequestBody StreetDTO street) {
-        StreetDTO streetDTO = streetService.saveStreet(street);
-        return ResponseEntity.ok().body(streetDTO);
-    }
-
     @Operation(summary = "All streets from database.")
     @ApiResponse(responseCode = "200", description = "Found streets.")
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StreetDTO>> getAllStreets() {
         List<StreetDTO> streets = streetService.findAllStreets();
         return ResponseEntity.ok().body(streets);
@@ -59,5 +51,13 @@ public class StreetController extends BaseController {
             List<StreetDTO> buildings = streets.stream().filter(s -> housenumber.equals(s.getHousenumber())).findFirst().stream().toList();
             return ResponseEntity.ok().body(buildings);
         }
+    }
+
+    @Operation(summary = "Add street.")
+    @ApiResponse(responseCode = "201", description = "Street added successfully.")
+    @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StreetDTO> addStreet(@Valid @RequestBody StreetDTO street) {
+        StreetDTO streetDTO = streetService.saveStreet(street);
+        return ResponseEntity.ok().body(streetDTO);
     }
 }

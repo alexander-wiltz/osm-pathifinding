@@ -24,17 +24,9 @@ public class WayController extends BaseController {
     @Autowired
     private WayService wayService;
 
-    @Operation(summary = "Add way.")
-    @ApiResponse(responseCode = "201", description = "Way added successfully.")
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WayDTO> addWay(@Valid @RequestBody WayDTO way) {
-        WayDTO wayDTO = wayService.saveWay(way);
-        return ResponseEntity.ok().body(wayDTO);
-    }
-
     @Operation(summary = "All ways from database.")
     @ApiResponse(responseCode = "200", description = "Found ways.")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<WayDTO>> getAllWays() {
         List<WayDTO> ways = wayService.findAllWays();
         return ResponseEntity.ok().body(ways);
@@ -46,5 +38,13 @@ public class WayController extends BaseController {
     public ResponseEntity<WayDTO> getWayById(@PathVariable Long id) {
         Optional<WayDTO> way = wayService.findWayById(id);
         return way.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Add way.")
+    @ApiResponse(responseCode = "201", description = "Way added successfully.")
+    @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<WayDTO> addWay(@Valid @RequestBody WayDTO way) {
+        WayDTO wayDTO = wayService.saveWay(way);
+        return ResponseEntity.ok().body(wayDTO);
     }
 }

@@ -24,17 +24,9 @@ public class NodeController extends BaseController {
     @Autowired
     private NodeService nodeService;
 
-    @Operation(summary = "Add node.")
-    @ApiResponse(responseCode = "201", description = "Node added successfully.")
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NodeDTO> addNode(@Valid @RequestBody NodeDTO node) {
-        NodeDTO nodeDTO = nodeService.saveNode(node);
-        return ResponseEntity.ok().body(nodeDTO);
-    }
-
     @Operation(summary = "All nodes from database.")
     @ApiResponse(responseCode = "200", description = "Found nodes.")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<NodeDTO>> getAllNodes() {
         List<NodeDTO> nodes = nodeService.findAllNodes();
         return ResponseEntity.ok().body(nodes);
@@ -46,5 +38,13 @@ public class NodeController extends BaseController {
     public ResponseEntity<NodeDTO> getNodeById(@PathVariable Long id) {
         Optional<NodeDTO> node = nodeService.findNodeById(id);
         return node.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation(summary = "Add node.")
+    @ApiResponse(responseCode = "201", description = "Node added successfully.")
+    @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<NodeDTO> addNode(@Valid @RequestBody NodeDTO node) {
+        NodeDTO nodeDTO = nodeService.saveNode(node);
+        return ResponseEntity.ok().body(nodeDTO);
     }
 }
