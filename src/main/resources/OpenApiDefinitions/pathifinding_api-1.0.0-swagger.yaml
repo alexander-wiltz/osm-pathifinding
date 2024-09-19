@@ -1,0 +1,91 @@
+openapi: "3.1.0"
+info:
+  title: "osm_pathifinding API"
+  description: "osm_pathifinding API"
+  version: "1.0.0"
+servers:
+  - url: "https://localhost:8081"
+tags:
+  - name: "Computing of requested ways"
+paths:
+  /pathfinding:
+    get:
+      summary: "Compute way and respond with GeoJson-Object."
+      description: "Compute way and respond with GeoJson-Object."
+      operationId: "computeRequestedWay"
+      parameters:
+        - name: "stStr"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+        - name: "stNo"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+        - name: "tgStr"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+        - name: "tgNo"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeoJsonObject"
+components:
+  schemas:
+    GeoJsonUmapOptions:
+      type: "object"
+      properties:
+        color:
+          type: "string"
+        iconClass:
+          type: "string"
+        iconUrl:
+          type: "string"
+        showLabel:
+          type: "string"
+    GeoJsonProperties:
+      type: "object"
+      properties:
+        _umap_options:
+          $ref: "#/components/schemas/GeoJsonUmapOptions"
+        name:
+          type: "string"
+    Object:
+      type: "object"
+      properties: { }
+    GeoJsonGeometry:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+        coordinates:
+          $ref: "#/components/schemas/Object"
+    GeoJsonFeature:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+        properties:
+          $ref: "#/components/schemas/GeoJsonProperties"
+        geometry:
+          $ref: "#/components/schemas/GeoJsonGeometry"
+    GeoJsonObject:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+        features:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/GeoJsonFeature"
