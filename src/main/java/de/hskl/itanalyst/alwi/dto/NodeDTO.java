@@ -1,7 +1,7 @@
 package de.hskl.itanalyst.alwi.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import de.hskl.itanalyst.alwi.algorithm.interfaces.IGraphNode;
+import de.hskl.itanalyst.alwi.algorithm.interfaces.INode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,7 +15,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class NodeDTO implements Serializable, IGraphNode {
+public class NodeDTO implements Serializable, INode {
 
     @Id
     @NonNull

@@ -1,6 +1,6 @@
 package de.hskl.itanalyst.alwi.algorithm;
 
-import de.hskl.itanalyst.alwi.algorithm.interfaces.IGraphNode;
+import de.hskl.itanalyst.alwi.algorithm.interfaces.INode;
 import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
-public class Graph<T extends IGraphNode> {
+public class Graph<T extends INode> {
 
     private final List<T> nodes;
     private final Map<Long, Set<Long>> connections;

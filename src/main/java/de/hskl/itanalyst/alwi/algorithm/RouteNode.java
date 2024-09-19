@@ -1,15 +1,14 @@
 package de.hskl.itanalyst.alwi.algorithm;
 
-import de.hskl.itanalyst.alwi.algorithm.interfaces.IGraphNode;
+import de.hskl.itanalyst.alwi.algorithm.interfaces.INode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.StringJoiner;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class RouteNode <T extends IGraphNode> implements Comparable<RouteNode> {
+public class RouteNode <T extends INode> implements Comparable<RouteNode> {
 
     private final T current;
     private T predecessor;
@@ -23,15 +22,5 @@ public class RouteNode <T extends IGraphNode> implements Comparable<RouteNode> {
     @Override
     public int compareTo(RouteNode other) {
         return Double.compare(this.estimatedScore, other.estimatedScore);
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", RouteNode.class.getSimpleName() + "[", "]")
-                .add("current=" + current)
-                .add("predecessor=" + predecessor)
-                .add("routeScore=" + routeScore)
-                .add("estimatedScore=" + estimatedScore)
-                .toString();
     }
 }

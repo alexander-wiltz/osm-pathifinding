@@ -1,6 +1,6 @@
 package de.hskl.itanalyst.alwi.algorithm;
 
-import de.hskl.itanalyst.alwi.algorithm.interfaces.IGraphNode;
+import de.hskl.itanalyst.alwi.algorithm.interfaces.INode;
 import de.hskl.itanalyst.alwi.algorithm.interfaces.IScorer;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
 import lombok.AllArgsConstructor;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
-public class RouteFinder<T extends IGraphNode> {
+public class RouteFinder<T extends INode> {
 
     private final Graph<T> graph;
     private final IScorer<T> nextScorer;
