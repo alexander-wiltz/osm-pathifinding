@@ -1,0 +1,1 @@
+docker run --name wegfinder -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -d postgres:latest -p 5432:5432

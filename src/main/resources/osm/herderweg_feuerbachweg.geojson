@@ -1,0 +1,96 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "_umap_options": {
+          "color": "Green",
+          "iconClass": "Drop",
+          "iconUrl": "/uploads/pictogram/basic-hut-24_OoAbQd3.png",
+          "showLabel": null
+        },
+        "name": "Start"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.707776,
+          49.234935
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "_umap_options": {
+          "color": "Red",
+          "iconClass": "Drop",
+          "iconUrl": "/uploads/pictogram/embassy-24_3W8iGQL.png",
+          "showLabel": null
+        },
+        "name": "Ziel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.703935,
+          49.235881
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            6.707762,
+            49.23492
+          ],
+          [
+            6.706711,
+            49.234899
+          ],
+          [
+            6.706695,
+            49.235384
+          ],
+          [
+            6.705992,
+            49.235391
+          ],
+          [
+            6.705496,
+            49.235382
+          ],
+          [
+            6.704935,
+            49.23538
+          ],
+          [
+            6.704672,
+            49.235386
+          ],
+          [
+            6.704667,
+            49.235508
+          ],
+          [
+            6.70394,
+            49.235515
+          ],
+          [
+            6.703921,
+            49.235876
+          ],
+          [
+            6.703927,
+            49.235918
+          ]
+        ]
+      }
+    }
+  ]
+}
