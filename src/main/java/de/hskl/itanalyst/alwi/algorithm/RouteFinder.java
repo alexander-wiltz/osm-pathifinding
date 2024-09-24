@@ -21,6 +21,8 @@ public class RouteFinder<T extends INode> {
         Map<T, RouteNode<T>> allNodes = new HashMap<>();
         Queue<RouteNode> openSet = new PriorityQueue<>();
 
+        // TODO: https://www.happycoders.eu/de/algorithmen/a-stern-algorithmus-java/#Laufzeit_mit_TreeSet
+
         RouteNode<T> start = new RouteNode<>(from, null, 0d, targetScorer.computeDistance(from, to));
         allNodes.put(from, start);
         openSet.add(start);
