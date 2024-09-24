@@ -8,13 +8,13 @@ import java.util.List;
 public class HaversineFormula implements IScorer<NodeDTO> {
 
     @Override
-    public double computeDistance(NodeDTO start, NodeDTO successor) {
+    public double computeDistance(NodeDTO start, NodeDTO target) {
         double R = 6372.8; // Earth's radius
 
-        double dLat = Math.toRadians(successor.getLatitude() - start.getLongitude());
-        double dLon = Math.toRadians(successor.getLongitude() - start.getLongitude());
+        double dLat = Math.toRadians(target.getLatitude() - start.getLongitude());
+        double dLon = Math.toRadians(target.getLongitude() - start.getLongitude());
         double lat1 = Math.toRadians(start.getLatitude());
-        double lat2 = Math.toRadians(successor.getLatitude());
+        double lat2 = Math.toRadians(target.getLatitude());
 
         double a = Math.pow(Math.sin(dLat / 2), 2)
                 + Math.pow(Math.sin(dLon / 2), 2) * Math.cos(lat1) * Math.cos(lat2);
