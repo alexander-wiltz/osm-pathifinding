@@ -1,0 +1,21 @@
+#### OSMOSIS Manual ####
+## Grundlagen
+https://wiki.openstreetmap.org/wiki/Osmosis
+
+## Download
+https://github.com/openstreetmap/osmosis/releases
+
+## Installationsanleitung
+https://wiki.openstreetmap.org/wiki/Osmosis/Quick_Install_(Windows)
+
+## Beginners Guide
+https://wiki.openstreetmap.org/wiki/Osmosis#Beginner's_guide
+
+## JDK muss eingetragen werden
+Ändere Pfad in osmosis.bat bei IF "%JAVACMD%"=="" set JAVACMD="C:\Users\alexa\.jdks\corretto-1.8.0_352\bin\java.exe"
+
+## OSMOSIS ausführen mit
+PS C:\Users\alexa\Downloads\osmosis-0.48.3\bin> .\osmosis.bat
+
+## Modify pbf to osm
+.\osmosis --read-xml ./wohnstadt.osm --write-pbf wohnstadt.osm.pbf
