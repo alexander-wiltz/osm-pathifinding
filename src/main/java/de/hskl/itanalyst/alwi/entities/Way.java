@@ -3,14 +3,14 @@ package de.hskl.itanalyst.alwi.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.io.Serializable;
 import java.util.Set;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "ways")
-public class Way {
+public class Way implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)

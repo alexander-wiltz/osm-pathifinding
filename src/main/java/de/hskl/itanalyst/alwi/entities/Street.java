@@ -3,7 +3,7 @@ package de.hskl.itanalyst.alwi.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -11,7 +11,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "streets")
-public class Street {
+public class Street implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
