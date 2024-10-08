@@ -1,12 +1,11 @@
 package de.hskl.itanalyst.alwi.dto;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.Set;
 
 
@@ -14,7 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class WayDTO {
+public class WayDTO implements Serializable {
     private Long id;
     private Boolean isBuilding;
     private Boolean isGarage;

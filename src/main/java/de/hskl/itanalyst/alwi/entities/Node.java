@@ -11,7 +11,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "nodes")
-public class Node implements Serializable {
+public class Node {
 
     @Id
     @Column(name = "id", nullable = false)

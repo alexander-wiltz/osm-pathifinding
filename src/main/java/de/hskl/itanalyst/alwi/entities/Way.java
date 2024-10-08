@@ -10,7 +10,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "ways")
-public class Way implements Serializable {
+public class Way {
 
     @Id
     @Column(name = "id", nullable = false)

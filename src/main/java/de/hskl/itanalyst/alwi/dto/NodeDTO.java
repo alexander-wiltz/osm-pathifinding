@@ -3,6 +3,8 @@ package de.hskl.itanalyst.alwi.dto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import de.hskl.itanalyst.alwi.algorithm.interfaces.INode;
 import lombok.*;
+
+import java.io.Serializable;
 import java.util.Set;
 
 
@@ -11,7 +13,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
-public class NodeDTO implements INode {
+public class NodeDTO implements Serializable, INode {
 
     @NonNull
     private Long id;
