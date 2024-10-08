@@ -4,8 +4,6 @@ import de.hskl.itanalyst.alwi.algorithm.AStar;
 import de.hskl.itanalyst.alwi.algorithm.Graph;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
-import de.hskl.itanalyst.alwi.entities.Node;
-import de.hskl.itanalyst.alwi.entities.Street;
 import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
@@ -17,7 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,9 +29,6 @@ import java.util.List;
 @Tag(name = "Computing of requested ways")
 @RequestMapping("/pathfinding")
 public class PathfindingController extends BaseController {
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Autowired
     private StreetService streetService;
@@ -58,16 +52,20 @@ public class PathfindingController extends BaseController {
             @RequestParam(name = "tgStr") String targetStreet,
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
-        List<StreetDTO> startStreets = streetService.findStreetsAndConvert(startStreet);
-        List<StreetDTO> targetStreets = streetService.findStreetsAndConvert(targetStreet);
+        List<StreetDTO> startStreets = streetService.findStreets(startStreet);
+        List<StreetDTO> targetStreets = streetService.findStreets(targetStreet);
 
-        NodeDTO startNode = streetService.getNodeOfStreetObjectAndConvert(startStreet, startNumber, startStreets);
-        NodeDTO targetNode = streetService.getNodeOfStreetObjectAndConvert(targetStreet, targetNumber, targetStreets);
+        NodeDTO startNode = streetService.getNodeOfStreetObject(startStreet, startNumber, startStreets);
+        NodeDTO targetNode = streetService.getNodeOfStreetObject(targetStreet, targetNumber, targetStreets);
 
-        List<Street> streets = streetService.findAllStreets();
-        List<StreetDTO> streetDTOs = streets.stream().map(this::convertToStreetDto).toList();
-        List<Node> nodes = nodeService.findAllNodes();
-        List<NodeDTO> nodeDTOs = nodes.stream().map(this::convertToNodeDto).toList();
+        List<StreetDTO> streetDTOs = streetService.findAllStreets();
+        List<NodeDTO> nodeDTOs = nodeService.findAllNodes();
+
+        // TODO
+        // Es werden zum Erstellen des Graphen immer alle Nodes und alle Straßen benötigt.
+        // Sollte man die Abfrage beim Starten des Webservice einmalig machen und die Informationen im Cahce mitführen?
+        // Die Suche der Adresse kann dann gegen die Daten die sich im Heap befinden erfolgen → PERFORMANCE GEWINN
+        // LocalStorage Class mit Street Liste und Node Liste ?
 
         Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streetDTOs, nodeDTOs);
         List<NodeDTO> route = aStarAlgorithm.findRoute(graph, startNode.getId(), targetNode.getId());
@@ -75,14 +73,6 @@ public class PathfindingController extends BaseController {
         GeoJsonObject geoJsonObject = geoJsonService.createGeoJsonObject(startNode, targetNode, route);
 
         return ResponseEntity.ok(geoJsonObject);
-    }
-
-    private StreetDTO convertToStreetDto(Street street) {
-        return modelMapper.map(street, StreetDTO.class);
-    }
-
-    private NodeDTO convertToNodeDto(Node node) {
-        return modelMapper.map(node, NodeDTO.class);
     }
 
 }

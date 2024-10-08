@@ -9,7 +9,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -26,28 +25,33 @@ public class WayService {
     private IWayRepository wayRepository;
 
     @Transactional
-    public Way saveWay(Way way) {
-        return wayRepository.save(way);
+    public WayDTO saveWay(WayDTO wayDTO) {
+        Way way = convertToWayEntity(wayDTO);
+        Way savedWay = wayRepository.save(way);
+        return convertToWayDto(savedWay);
     }
 
     @Transactional
-    public void saveAllWays(List<Way> ways) {
+    public void saveAllWays(List<WayDTO> wayDTOs) {
+        List<Way> ways = wayDTOs.stream().map(this::convertToWayEntity).toList();
         wayRepository.saveAll(ways);
     }
 
-    public List<Way> findAllWays() {
-        return wayRepository.findAll();
+    public List<WayDTO> findAllWays() {
+        List<Way> ways = wayRepository.findAll();
+        return ways.stream().map(this::convertToWayDto).toList();
     }
 
-    public Optional<Way> findWayById(Long id) {
-        return wayRepository.findById(id);
+    public Optional<WayDTO> findWayById(Long id) {
+        Optional<Way> way = wayRepository.findById(id);
+        return way.map(this::convertToWayDto);
     }
 
-    protected WayDTO convertToDto(Way way) {
+    private WayDTO convertToWayDto(Way way) {
         return modelMapper.map(way, WayDTO.class);
     }
 
-    protected Way convertToEntity(WayDTO wayDTO) {
+    private Way convertToWayEntity(WayDTO wayDTO) {
         return modelMapper.map(wayDTO, Way.class);
     }
 }

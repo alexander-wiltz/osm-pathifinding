@@ -1,16 +1,10 @@
 package de.hskl.itanalyst.alwi.services;
 
-
 import de.hskl.itanalyst.alwi.dto.*;
-import de.hskl.itanalyst.alwi.entities.Node;
-import de.hskl.itanalyst.alwi.entities.Street;
-import de.hskl.itanalyst.alwi.entities.Way;
 import de.hskl.itanalyst.alwi.osmmodel.OsmXml;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -34,9 +28,6 @@ public class FileHandlerService {
 
     @Autowired
     private XmlHandlerService xmlHandlerService;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     /**
      * Read osm-file and unmarshall xml objects
@@ -80,28 +71,13 @@ public class FileHandlerService {
         log.debug("Found {} ways.", wayDTOs.size());
         log.debug("Found {} streets and buildings.", streetDTOs.size());
 
-        List<Node> nodes = nodeDTOs.stream().map(this::convertNodeEntity).toList();
-        nodeService.saveAllNodes(nodes);
+        nodeService.saveAllNodes(nodeDTOs);
         log.debug("Nodes saved.");
 
-        List<Way> ways = wayDTOs.stream().map(this::convertWayEntity).toList();
-        wayService.saveAllWays(ways);
+        wayService.saveAllWays(wayDTOs);
         log.debug("Ways saved.");
 
-        List<Street> streets = streetDTOs.stream().map(this::convertStreetEntity).toList();
-        streetService.saveAllStreets(streets);
+        streetService.saveAllStreets(streetDTOs);
         log.debug("Streets saved.");
-    }
-
-    private Node convertNodeEntity (NodeDTO nodeDTO) {
-        return modelMapper.map(nodeDTO, Node.class);
-    }
-
-    private Way convertWayEntity (WayDTO wayDTO) {
-        return modelMapper.map(wayDTO, Way.class);
-    }
-
-    private Street convertStreetEntity (StreetDTO streetDTO) {
-        return modelMapper.map(streetDTO, Street.class);
     }
 }

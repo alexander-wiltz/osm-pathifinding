@@ -25,44 +25,48 @@ public class StreetService {
     private EntityManager entityManager;
 
     @Autowired
-    private IStreetRepository streetRepository;
-
-    @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private IStreetRepository streetRepository;
+
     @Transactional
-    public Street saveStreet(Street street) {
-        return streetRepository.save(street);
+    public StreetDTO saveStreet(StreetDTO streetDTO) {
+        Street savedStreet = convertToStreetEntity(streetDTO);
+        streetRepository.save(savedStreet);
+        return convertToStreetDto(savedStreet);
     }
 
     @Transactional
-    public void saveAllStreets(List<Street> streets) {
+    public void saveAllStreets(List<StreetDTO> streetsDTOs) {
+        List<Street> streets = streetsDTOs.stream().map(this::convertToStreetEntity).toList();
         streetRepository.saveAll(streets);
     }
 
-    public List<Street> findAllStreets() {
-        return streetRepository.findAll();
+    public List<StreetDTO> findAllStreets() {
+        List<Street> streets = streetRepository.findAll();
+        return streets.stream().map(this::convertToStreetDto).toList();
     }
 
-    public Optional<Street> findStreetById(Long id) {
-        return streetRepository.findById(id);
+    public Optional<StreetDTO> findStreetById(Long id) {
+        Optional<Street> street = streetRepository.findById(id);
+        return street.map(this::convertToStreetDto);
     }
 
-    public List<Street> findByStreet(String name) {
-        return streetRepository.findByStreet(name);
+    public List<StreetDTO> findByStreet(String name) {
+        List<Street> streets = streetRepository.findByStreet(name);
+        return streets.stream().map(this::convertToStreetDto).toList();
     }
 
-    public List<StreetDTO> findStreetsAndConvert(String street) throws StreetNotFoundException {
-        List<Street> streets = streetRepository.findByStreet(street);
-        List<StreetDTO> streetsDTOs = streets.stream().map(this::convertToStreetDto).toList();
-
-        if (streetsDTOs.isEmpty()) {
+    public List<StreetDTO> findStreets(String street) throws StreetNotFoundException {
+        List<StreetDTO> streetDTOs = findByStreet(street);
+        if (streetDTOs.isEmpty()) {
             String errMsg = String.format("Street %s not found.", street);
             log.error(errMsg);
             throw new StreetNotFoundException(errMsg);
         }
 
-        return streetsDTOs;
+        return streetDTOs;
     }
 
     /**
@@ -73,7 +77,7 @@ public class StreetService {
      * @return NodeDTO
      * @throws NodeNotFoundException exception
      */
-    public NodeDTO getNodeOfStreetObjectAndConvert(String street, String number, List<StreetDTO> streets) throws NodeNotFoundException {
+    public NodeDTO getNodeOfStreetObject(String street, String number, List<StreetDTO> streets) throws NodeNotFoundException {
         StreetDTO address = streets.stream().filter(s -> s.getHousenumber() != null && s.getHousenumber().equals(number)).findFirst().orElse(null);
         NodeDTO node;
         if (address != null) {
@@ -89,5 +93,9 @@ public class StreetService {
 
     private StreetDTO convertToStreetDto(Street street) {
         return modelMapper.map(street, StreetDTO.class);
+    }
+
+    private Street convertToStreetEntity(StreetDTO streetDTO) {
+        return modelMapper.map(streetDTO, Street.class);
     }
 }
