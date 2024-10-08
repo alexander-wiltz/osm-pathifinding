@@ -63,9 +63,8 @@ public class PostgreSQLIntegrationTest {
 
     @Test
     public void testSaveNodes() {
-        List<Node> nodes = nodeDTOs.stream().map(this::convertToNodeEntity).toList();
-        nodeService.saveAllNodes(nodes);
-        verify(mockEntityManager).persist(nodes);
+        nodeService.saveAllNodes(nodeDTOs);
+        verify(mockEntityManager).persist(nodeDTOs);
     }
 
     @Test
@@ -82,9 +81,5 @@ public class PostgreSQLIntegrationTest {
         when(mockEntityManager.contains(nodeA)).thenReturn(true);
         mockEntityManager.remove(nodeA);
         verify(mockEntityManager).remove(nodeA);
-    }
-
-    private Node convertToNodeEntity(NodeDTO nodeDTO) {
-        return modelMapper.map(nodeDTO, Node.class);
     }
 }
