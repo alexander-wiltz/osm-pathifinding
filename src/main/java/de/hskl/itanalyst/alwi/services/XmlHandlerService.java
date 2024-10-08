@@ -1,4 +1,4 @@
-package de.hskl.itanalyst.alwi.utilities;
+package de.hskl.itanalyst.alwi.services;
 
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -6,12 +6,14 @@ import jakarta.xml.bind.UnmarshalException;
 import jakarta.xml.bind.Unmarshaller;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.io.StringReader;
 
 
 @Slf4j
-public class XmlHandler {
+@Service
+public class XmlHandlerService {
 
     /**
      * Method turns a given xml string into a defined object
@@ -22,7 +24,7 @@ public class XmlHandler {
      * @return configured object
      */
     @SuppressWarnings("unchecked")
-    public static <T> T getObjectFromXmlString(@NonNull String xml, Class<T> genericClass) {
+    public <T> T getObjectFromXmlString(@NonNull String xml, Class<T> genericClass) {
         if (xml.isEmpty()) {
             log.debug("XML-String should not be empty");
             return null;

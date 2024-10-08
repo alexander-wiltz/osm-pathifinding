@@ -1,6 +1,6 @@
 package de.hskl.itanalyst.alwi.services;
 
-import de.hskl.itanalyst.alwi.dto.NodeDTO;
+import de.hskl.itanalyst.alwi.entities.Node;
 import de.hskl.itanalyst.alwi.repositories.INodeRepository;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.EntityManager;
@@ -20,21 +20,20 @@ public class NodeService {
     private INodeRepository nodeRepository;
 
     @Transactional
-    public NodeDTO saveNode(NodeDTO node) {
-        entityManager.persist(node);
-        return node;
+    public Node saveNode(Node node) {
+        return nodeRepository.save(node);
     }
 
     @Transactional
-    public void saveAllNodes(List<NodeDTO> nodes) {
+    public void saveAllNodes(List<Node> nodes) {
         nodeRepository.saveAll(nodes);
     }
 
-    public List<NodeDTO> findAllNodes() {
+    public List<Node> findAllNodes() {
         return nodeRepository.findAll();
     }
 
-    public Optional<NodeDTO> findNodeById(Long id) {
+    public Optional<Node> findNodeById(Long id) {
         return nodeRepository.findById(id);
     }
 }

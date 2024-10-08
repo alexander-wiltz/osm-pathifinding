@@ -8,8 +8,7 @@ import lombok.*;
 import java.util.Collection;
 import java.util.Set;
 
-@Entity
-@Table(name = "streets")
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,13 +23,10 @@ public class StreetDTO {
     private Boolean isBuilding;
 
     @JsonBackReference
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent")
     private StreetDTO parent;
 
     @ToString.Exclude
     @JsonManagedReference
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Collection<StreetDTO> children;
 
     @Column(name = "street")
@@ -40,10 +36,5 @@ public class StreetDTO {
     private String housenumber;
 
     @JsonManagedReference
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "street_node_relation",
-            joinColumns = @JoinColumn(name = "street_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "node_id", referencedColumnName = "id"))
     private Set<NodeDTO> nodes;
 }

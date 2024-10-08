@@ -4,6 +4,8 @@ import de.hskl.itanalyst.alwi.algorithm.AStar;
 import de.hskl.itanalyst.alwi.algorithm.Graph;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
+import de.hskl.itanalyst.alwi.entities.Node;
+import de.hskl.itanalyst.alwi.entities.Street;
 import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
@@ -15,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +32,9 @@ import java.util.List;
 @Tag(name = "Computing of requested ways")
 @RequestMapping("/pathfinding")
 public class PathfindingController extends BaseController {
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     private StreetService streetService;
@@ -52,27 +58,18 @@ public class PathfindingController extends BaseController {
             @RequestParam(name = "tgStr") String targetStreet,
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
-        List<StreetDTO> startStreets = streetService.findByStreet(startStreet);
-        if (startStreets == null || startStreets.isEmpty()) {
-            String errMsg = String.format("Street %s not found.", startStreet);
-            log.error(errMsg);
-            throw new StreetNotFoundException(errMsg);
-        }
+        List<StreetDTO> startStreets = streetService.findStreetsAndConvert(startStreet);
+        List<StreetDTO> targetStreets = streetService.findStreetsAndConvert(targetStreet);
 
-        List<StreetDTO> targetStreets = streetService.findByStreet(targetStreet);
-        if (targetStreets == null || targetStreets.isEmpty()) {
-            String errMsg = String.format("Street %s not found.", targetStreet);
-            log.error(errMsg);
-            throw new StreetNotFoundException(errMsg);
-        }
+        NodeDTO startNode = streetService.getNodeOfStreetObjectAndConvert(startStreet, startNumber, startStreets);
+        NodeDTO targetNode = streetService.getNodeOfStreetObjectAndConvert(targetStreet, targetNumber, targetStreets);
 
-        NodeDTO startNode = getStreetObject(startStreet, startNumber, startStreets);
-        NodeDTO targetNode = getStreetObject(targetStreet, targetNumber, targetStreets);
+        List<Street> streets = streetService.findAllStreets();
+        List<StreetDTO> streetDTOs = streets.stream().map(this::convertToStreetDto).toList();
+        List<Node> nodes = nodeService.findAllNodes();
+        List<NodeDTO> nodeDTOs = nodes.stream().map(this::convertToNodeDto).toList();
 
-        List<StreetDTO> streets = streetService.findAllStreets();
-        List<NodeDTO> nodes = nodeService.findAllNodes();
-
-        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
+        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streetDTOs, nodeDTOs);
         List<NodeDTO> route = aStarAlgorithm.findRoute(graph, startNode.getId(), targetNode.getId());
 
         GeoJsonObject geoJsonObject = geoJsonService.createGeoJsonObject(startNode, targetNode, route);
@@ -80,26 +77,12 @@ public class PathfindingController extends BaseController {
         return ResponseEntity.ok(geoJsonObject);
     }
 
-    /**
-     * Taking a house from an address
-     * @param street street
-     * @param number housenumber
-     * @param streets list of streets
-     * @return NodeDTO
-     * @throws NodeNotFoundException exception
-     */
-    private NodeDTO getStreetObject(String street, String number, List<StreetDTO> streets) throws NodeNotFoundException {
-        StreetDTO address = streets.stream().filter(s -> s.getHousenumber() != null && s.getHousenumber().equals(number)).findFirst().orElse(null);
-        NodeDTO node;
-        if (address != null) {
-            node = address.getNodes().stream().toList().get(0);
-        } else {
-            String errMsg = String.format("No match for number: %s in street: %s.", number, street);
-            log.error(errMsg);
-            throw new NodeNotFoundException(errMsg);
-        }
+    private StreetDTO convertToStreetDto(Street street) {
+        return modelMapper.map(street, StreetDTO.class);
+    }
 
-        return node;
+    private NodeDTO convertToNodeDto(Node node) {
+        return modelMapper.map(node, NodeDTO.class);
     }
 
 }

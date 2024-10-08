@@ -2,6 +2,7 @@ package alwi.database;
 
 import de.hskl.itanalyst.alwi.PathfindingApplication;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
+import de.hskl.itanalyst.alwi.entities.Node;
 import de.hskl.itanalyst.alwi.repositories.INodeRepository;
 import de.hskl.itanalyst.alwi.services.NodeService;
 import jakarta.persistence.EntityManager;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -25,8 +28,11 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {PathfindingApplication.class})
 public class PostgreSQLIntegrationTest {
 
-    private List<NodeDTO> nodes;
+    private List<NodeDTO> nodeDTOs;
     private NodeDTO nodeA;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Mock
     private EntityManager mockEntityManager;
@@ -50,13 +56,14 @@ public class PostgreSQLIntegrationTest {
         nodeA = new NodeDTO(1L, 52.5200, 13.4050); // Berlin
         assertThat(nodeA).matches(n -> n.getId() != null && n.getLatitude() == 52.5200 && n.getLongitude() == 13.4050);
 
-        nodes = new ArrayList<>();
-        nodes.add(nodeA);
-        assertThat(nodes).matches(n -> n.size() == 1);
+        nodeDTOs = new ArrayList<>();
+        nodeDTOs.add(nodeA);
+        assertThat(nodeDTOs).matches(n -> n.size() == 1);
     }
 
     @Test
     public void testSaveNodes() {
+        List<Node> nodes = nodeDTOs.stream().map(this::convertToNodeEntity).toList();
         nodeService.saveAllNodes(nodes);
         verify(mockEntityManager).persist(nodes);
     }
@@ -75,5 +82,9 @@ public class PostgreSQLIntegrationTest {
         when(mockEntityManager.contains(nodeA)).thenReturn(true);
         mockEntityManager.remove(nodeA);
         verify(mockEntityManager).remove(nodeA);
+    }
+
+    private Node convertToNodeEntity(NodeDTO nodeDTO) {
+        return modelMapper.map(nodeDTO, Node.class);
     }
 }

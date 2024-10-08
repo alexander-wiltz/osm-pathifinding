@@ -1,19 +1,20 @@
-package de.hskl.itanalyst.alwi.utilities;
+package de.hskl.itanalyst.alwi.services;
 
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.dto.WayDTO;
 import de.hskl.itanalyst.alwi.osmmodel.*;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@NoArgsConstructor
-public class ObjectHandler {
+@Service
+public class ObjectHandlerService {
 
     /**
      * Prepare Street Objects

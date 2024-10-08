@@ -1,10 +1,12 @@
 package de.hskl.itanalyst.alwi;
 
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 
 @Slf4j
 @SpringBootApplication
@@ -19,10 +21,8 @@ public class PathfindingApplication extends SpringBootServletInitializer {
         return application.sources(PathfindingApplication.class);
     }
 
-//    @Bean
-//    public CommandLineRunner loadInitialData(GraphBuilderService graphBuilderService) {
-//        return (args) -> {
-//            graphBuilderService.buildGraph();
-//        };
-//    }
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 }
