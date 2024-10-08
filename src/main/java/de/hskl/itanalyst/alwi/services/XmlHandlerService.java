@@ -14,6 +14,8 @@ import java.io.StringReader;
 @Service
 public class XmlHandlerService {
 
+    // TODO switch methods regarding xml handling from object handler to xml-handler
+
     /**
      * Method turns a given xml string into a defined object
      *

@@ -89,6 +89,7 @@ public class AStar {
      * @param streets street-objects
      * @return Set of used Nodes
      */
+    @Deprecated
     private Set<NodeDTO> buildNodeContainer(List<StreetDTO> streets) {
         Set<NodeDTO> nodeContainer = new HashSet<>();
         for (StreetDTO street : streets) {
