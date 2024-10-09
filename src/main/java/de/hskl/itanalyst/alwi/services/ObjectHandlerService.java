@@ -226,8 +226,8 @@ public class ObjectHandlerService {
      * @return value of object
      */
     private String getValueOfTagXmlByKey(List<TagXml> tagXmls, String key) {
-        Optional<TagXml> tagXmlOptionalHighway = tagXmls.stream().filter(tag -> tag.getKey().contains(key)).findFirst();
-        return tagXmlOptionalHighway.map(TagXml::getValue).orElse(null);
+        Optional<TagXml> tagXmlOptional = tagXmls.stream().filter(tag -> tag.getKey().contains(key)).findFirst();
+        return tagXmlOptional.map(TagXml::getValue).orElse(null);
     }
 
     /**
