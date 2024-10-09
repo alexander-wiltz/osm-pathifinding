@@ -8,6 +8,7 @@ import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
 import de.hskl.itanalyst.alwi.geomodel.GeoJsonObject;
+import de.hskl.itanalyst.alwi.localstorage.LocalStorage;
 import de.hskl.itanalyst.alwi.services.GeoJsonService;
 import de.hskl.itanalyst.alwi.services.NodeService;
 import de.hskl.itanalyst.alwi.services.StreetService;
@@ -31,16 +32,13 @@ import java.util.List;
 public class PathfindingController extends BaseController {
 
     @Autowired
-    private StreetService streetService;
-
-    @Autowired
-    private NodeService nodeService;
-
-    @Autowired
     private GeoJsonService geoJsonService;
 
     @Autowired
     private AStar aStarAlgorithm;
+
+    @Autowired
+    private LocalStorage localStorage;
 
     @Operation(summary = "Compute way and respond with GeoJson-Object.")
     @ApiResponse(responseCode = "200", description = "GeoJson Object successfully created.")
@@ -52,24 +50,18 @@ public class PathfindingController extends BaseController {
             @RequestParam(name = "tgStr") String targetStreet,
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
-        List<StreetDTO> startStreets = streetService.findStreets(startStreet);
-        List<StreetDTO> targetStreets = streetService.findStreets(targetStreet);
+        List<StreetDTO> startStreets = localStorage.findStreetByName(startStreet);
+        List<StreetDTO> targetStreets = localStorage.findStreetByName(targetStreet);
 
-        NodeDTO startNode = streetService.getNodeOfStreetObject(startStreet, startNumber, startStreets);
-        NodeDTO targetNode = streetService.getNodeOfStreetObject(targetStreet, targetNumber, targetStreets);
+        NodeDTO startNode = localStorage.getNodeOfStreetObject(startStreet, startNumber, startStreets);
+        NodeDTO targetNode = localStorage.getNodeOfStreetObject(targetStreet, targetNumber, targetStreets);
 
-        List<StreetDTO> streetDTOs = streetService.findAllStreets();
-        List<NodeDTO> nodeDTOs = nodeService.findAllNodes();
+        // TODO initial graph building
+        List<StreetDTO> streets = localStorage.getGlobalStreetDTOs();
+        List<NodeDTO> nodes = localStorage.getGlobalNodeDTOs();
+        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
 
-        // TODO
-        // Es werden zum Erstellen des Graphen immer alle Nodes und alle Straßen benötigt.
-        // Sollte man die Abfrage beim Starten des Webservice einmalig machen und die Informationen im Cahce mitführen?
-        // Die Suche der Adresse kann dann gegen die Daten die sich im Heap befinden erfolgen → PERFORMANCE GEWINN
-        // LocalStorage Class mit Street Liste und Node Liste ?
-
-        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streetDTOs, nodeDTOs);
         List<NodeDTO> route = aStarAlgorithm.findRoute(graph, startNode.getId(), targetNode.getId());
-
         GeoJsonObject geoJsonObject = geoJsonService.createGeoJsonObject(startNode, targetNode, route);
 
         return ResponseEntity.ok(geoJsonObject);

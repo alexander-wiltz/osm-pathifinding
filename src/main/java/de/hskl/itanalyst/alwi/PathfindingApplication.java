@@ -1,7 +1,9 @@
 package de.hskl.itanalyst.alwi;
 
+import de.hskl.itanalyst.alwi.services.FileHandlerService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -24,5 +26,14 @@ public class PathfindingApplication extends SpringBootServletInitializer {
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
+    }
+
+    // run just a single time if there is no data in database
+    @Bean
+    public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService) {
+        return (args) -> {
+            String filename = "C:\\workspace\\osm-pathifinding\\src\\main\\resources\\osm\\export_ueberherrn+wohnstadt_nw.osm";
+            fileHandlerService.saveFileDataToDatabase(filename);
+        };
     }
 }
