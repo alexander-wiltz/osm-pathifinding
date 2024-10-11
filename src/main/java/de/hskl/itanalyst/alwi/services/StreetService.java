@@ -1,10 +1,7 @@
 package de.hskl.itanalyst.alwi.services;
 
-import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.entities.Street;
-import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
-import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.repositories.IStreetRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,9 +10,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -40,7 +38,20 @@ public class StreetService {
     @Transactional
     public void saveAllStreets(List<StreetDTO> streetsDTOs) {
         List<Street> streets = streetsDTOs.stream().map(this::convertToStreetEntity).toList();
-        streetRepository.saveAll(streets);
+        // At first load child objects and save into database without parent relation
+        Set<Street> childStreets = streets.stream().filter(Street::getIsBuilding).collect(Collectors.toSet());
+        for (Street child : childStreets) {
+            child.setParent(null);
+            entityManager.persist(child);
+            entityManager.flush();
+            entityManager.clear();
+        }
+
+        // Load parent objects and build up the relation between child objects and top level elements
+        Set<Street> parentStreets = streets.stream().filter(street -> !street.getIsBuilding()).collect(Collectors.toSet());
+        for (Street parent : parentStreets) {
+            entityManager.merge(parent);
+        }
     }
 
     public List<StreetDTO> findAllStreets() {

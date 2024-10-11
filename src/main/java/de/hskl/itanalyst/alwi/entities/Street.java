@@ -3,7 +3,6 @@ package de.hskl.itanalyst.alwi.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -24,7 +23,7 @@ public class Street {
     @JoinColumn(name = "parent")
     private Street parent;
 
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private Collection<Street> children;
 
     @Column(name = "street")

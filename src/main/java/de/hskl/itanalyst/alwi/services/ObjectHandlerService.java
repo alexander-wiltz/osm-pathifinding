@@ -276,7 +276,7 @@ public class ObjectHandlerService {
     private boolean alreadyExists(WayDTO wayDTO, List<StreetDTO> streetDTOs) {
         for (StreetDTO streetDTO : streetDTOs) {
             if (streetDTO.getId().equals(wayDTO.getId())) {
-                log.info("Way-Object already exists. Way={}", wayDTO.getId());
+                log.debug("Way-Object already exists. Way={}", wayDTO.getId());
                 return true;
             }
         }
