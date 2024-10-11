@@ -11,7 +11,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "nodes")
-public class Node {
+public class Node implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
@@ -23,6 +23,6 @@ public class Node {
     @Column(name = "lat", nullable = false)
     private Double latitude;
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "nodes")
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "nodes")
     private Set<Street> streets;
 }

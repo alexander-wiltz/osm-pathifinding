@@ -3,13 +3,17 @@ package de.hskl.itanalyst.alwi.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serializable;
 import java.util.Set;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "ways")
-public class Way {
+@Table(name = "ways", indexes = {
+        @Index(name = "way_name_idx",  columnList="name")
+})
+public class Way implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
@@ -63,7 +67,7 @@ public class Way {
     @Column(name="refNode")
     private Long refNode;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "node_way_relation",
             joinColumns = @JoinColumn(name = "way_id", referencedColumnName = "id"),
