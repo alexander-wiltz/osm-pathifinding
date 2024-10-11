@@ -8,6 +8,8 @@ import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -29,6 +31,7 @@ public class StreetService {
     private IStreetRepository streetRepository;
 
     @Transactional
+    @CachePut(value="streets", key = "#street.id")
     public StreetDTO saveStreet(StreetDTO streetDTO) {
         Street savedStreet = convertToStreetEntity(streetDTO);
         streetRepository.save(savedStreet);
@@ -36,6 +39,7 @@ public class StreetService {
     }
 
     @Transactional
+    @CachePut(value="streets", key = "#street.id")
     public void saveAllStreets(List<StreetDTO> streetsDTOs) {
         List<Street> streets = streetsDTOs.stream().map(this::convertToStreetEntity).toList();
         // At first load child objects and save into database without parent relation
@@ -54,16 +58,19 @@ public class StreetService {
         }
     }
 
+    @Cacheable("streets")
     public List<StreetDTO> findAllStreets() {
         List<Street> streets = streetRepository.findAll();
         return streets.stream().map(this::convertToStreetDto).toList();
     }
 
+    @Cacheable("streets")
     public Optional<StreetDTO> findStreetById(Long id) {
         Optional<Street> street = streetRepository.findById(id);
         return street.map(this::convertToStreetDto);
     }
 
+    @Cacheable("streets")
     public List<StreetDTO> findByStreet(String name) {
         List<Street> streets = streetRepository.findByStreet(name);
         return streets.stream().map(this::convertToStreetDto).toList();

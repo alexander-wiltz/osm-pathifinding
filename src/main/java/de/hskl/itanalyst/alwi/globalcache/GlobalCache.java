@@ -1,15 +1,17 @@
-package de.hskl.itanalyst.alwi.localstorage;
+package de.hskl.itanalyst.alwi.globalcache;
 
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.dto.WayDTO;
 import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
+import de.hskl.itanalyst.alwi.services.NodeService;
+import de.hskl.itanalyst.alwi.services.StreetService;
+import de.hskl.itanalyst.alwi.services.WayService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,11 +20,37 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @Component
-public class LocalStorage {
+public class GlobalCache {
 
-    private final List<NodeDTO> globalNodeDTOs;
-    private final List<WayDTO> globalWayDTOs;
-    private final List<StreetDTO> globalStreetDTOs;
+    private List<NodeDTO> globalNodeDTOs;
+    private List<WayDTO> globalWayDTOs;
+    private List<StreetDTO> globalStreetDTOs;
+
+    @Autowired
+    private NodeService nodeService;
+
+    @Autowired
+    private WayService wayService;
+
+    @Autowired
+    private StreetService streetService;
+
+    public void prepareInitialData() {
+        globalNodeDTOs = nodeService.findAllNodes();
+        globalWayDTOs = wayService.findAllWays();
+        globalStreetDTOs = streetService.findAllStreets();
+    }
+
+    public void refreshCache() {
+        globalNodeDTOs.clear();
+        globalNodeDTOs = nodeService.findAllNodes();
+
+        globalWayDTOs.clear();
+        globalWayDTOs = wayService.findAllWays();
+
+        globalStreetDTOs.clear();
+        globalStreetDTOs = streetService.findAllStreets();
+    }
 
     public List<StreetDTO> findStreetByName(String streetName) throws StreetNotFoundException {
         List<StreetDTO> streets = globalStreetDTOs.stream().filter(s -> s.getStreet().equals(streetName)).toList();
@@ -38,7 +66,7 @@ public class LocalStorage {
     /**
      * Taking a house from an address
      * @param street street
-     * @param number housenumber
+     * @param number house-number
      * @param streets list of streets
      * @return NodeDTO
      * @throws NodeNotFoundException exception

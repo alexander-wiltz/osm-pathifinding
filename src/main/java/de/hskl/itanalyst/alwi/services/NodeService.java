@@ -7,6 +7,8 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.EntityManager;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -24,6 +26,7 @@ public class NodeService {
     @Autowired
     private INodeRepository nodeRepository;
 
+    @CachePut(value="nodes")
     @Transactional
     public NodeDTO saveNode(NodeDTO nodeDTO) {
         Node node = convertToNodeEntity(nodeDTO);
@@ -31,17 +34,20 @@ public class NodeService {
         return convertToNodeDto(savedNode);
     }
 
+    @CachePut(value="nodes")
     @Transactional
     public void saveAllNodes(List<NodeDTO> nodeDTOs) {
         List<Node> nodes = nodeDTOs.stream().map(this::convertToNodeEntity).toList();
         nodeRepository.saveAll(nodes);
     }
 
+    @Cacheable("nodes")
     public List<NodeDTO> findAllNodes() {
         List<Node> nodes = nodeRepository.findAll();
         return nodes.stream().map(this::convertToNodeDto).toList();
     }
 
+    @Cacheable("nodes")
     public Optional<NodeDTO> findNodeById(Long id) {
         Optional<Node> node = nodeRepository.findById(id);
         return node.map(this::convertToNodeDto);
