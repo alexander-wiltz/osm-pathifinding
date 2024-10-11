@@ -2,6 +2,7 @@ package de.hskl.itanalyst.alwi.services;
 
 import de.hskl.itanalyst.alwi.dto.*;
 import de.hskl.itanalyst.alwi.osmmodel.OsmXml;
+import de.hskl.itanalyst.alwi.utilities.TimeTracker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class FileHandlerService {
     @Autowired
     private XmlHandlerService xmlHandlerService;
 
+    @Autowired
+    private TimeTracker timeTracker;
+
     /**
      * Read osm-file and unmarshall xml objects
      *
@@ -55,6 +59,8 @@ public class FileHandlerService {
      * @param filename name of file
      */
     public void saveFileDataToDatabase(String filename) throws FileNotFoundException {
+        timeTracker.startTime();
+
         String context = readOsmFile(filename);
 
         OsmXml osmXml = xmlHandlerService.getObjectFromXmlString(context, OsmXml.class);
@@ -79,5 +85,7 @@ public class FileHandlerService {
 
         streetService.saveAllStreets(streetDTOs);
         log.debug("Streets saved.");
+
+        timeTracker.endTime(this.getClass().getName());
     }
 }
