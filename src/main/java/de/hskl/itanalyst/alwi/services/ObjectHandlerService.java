@@ -24,7 +24,7 @@ public class ObjectHandlerService {
      * @return sorted list of street objects
      */
     public List<StreetDTO> prepareStreetsFromWaysAndNodes(List<WayDTO> ways, List<NodeDTO> nodes) {
-        LinkedList<StreetDTO> streets = new LinkedList<>();
+        List<StreetDTO> streets = new ArrayList<>();
         List<WayDTO> justWays = new ArrayList<>();
         List<WayDTO> justBuildings = new ArrayList<>();
 
@@ -175,38 +175,41 @@ public class ObjectHandlerService {
         wayDTO.setId(wayXml.getId());
 
         List<TagXml> tagXmls = wayXml.getTags();
-        wayDTO.setHighway(getValueOfTagXmlByKey(tagXmls, "highway"));
-        wayDTO.setName(getValueOfTagXmlByKey(tagXmls, "name"));
-        wayDTO.setCity(getValueOfTagXmlByKey(tagXmls, "city"));
-        wayDTO.setCountry(getValueOfTagXmlByKey(tagXmls, "country"));
-        wayDTO.setHousenumber(getValueOfTagXmlByKey(tagXmls, "housenumber"));
-        wayDTO.setPostcode(getValueOfTagXmlByKey(tagXmls, "postcode"));
-        wayDTO.setStreet(getValueOfTagXmlByKey(tagXmls, "street"));
+        if(tagXmls != null && !tagXmls.isEmpty()) {
+            log.debug("No Tags detected. Skip. Way={}", wayXml.getId());
+            wayDTO.setHighway(getValueOfTagXmlByKey(tagXmls, "highway"));
+            wayDTO.setName(getValueOfTagXmlByKey(tagXmls, "name"));
+            wayDTO.setCity(getValueOfTagXmlByKey(tagXmls, "city"));
+            wayDTO.setCountry(getValueOfTagXmlByKey(tagXmls, "country"));
+            wayDTO.setHousenumber(getValueOfTagXmlByKey(tagXmls, "housenumber"));
+            wayDTO.setPostcode(getValueOfTagXmlByKey(tagXmls, "postcode"));
+            wayDTO.setStreet(getValueOfTagXmlByKey(tagXmls, "street"));
 
-        wayDTO.setJunction(getValueOfTagXmlByKey(tagXmls, "junction")); // just to have it
-        wayDTO.setSurface(getValueOfTagXmlByKey(tagXmls, "surface")); // just to have it, maybe for later reasons, calculating time to travel
+            wayDTO.setJunction(getValueOfTagXmlByKey(tagXmls, "junction")); // just to have it
+            wayDTO.setSurface(getValueOfTagXmlByKey(tagXmls, "surface")); // just to have it, maybe for later reasons, calculating time to travel
 
-        wayDTO.setSport(getValueOfTagXmlByKey(tagXmls, "sport")); // need for halls and places
-        wayDTO.setAmenity(getValueOfTagXmlByKey(tagXmls, "amenity")); // need for schools, churches, kindergarten
-        wayDTO.setReligion(getValueOfTagXmlByKey(tagXmls, "religion")); // need for churches
-        wayDTO.setDenomination(getValueOfTagXmlByKey(tagXmls, "denomination"));
+            wayDTO.setSport(getValueOfTagXmlByKey(tagXmls, "sport")); // need for halls and places
+            wayDTO.setAmenity(getValueOfTagXmlByKey(tagXmls, "amenity")); // need for schools, churches, kindergarten
+            wayDTO.setReligion(getValueOfTagXmlByKey(tagXmls, "religion")); // need for churches
+            wayDTO.setDenomination(getValueOfTagXmlByKey(tagXmls, "denomination"));
 
-        String building = getValueOfTagXmlByKey(tagXmls, "building");
-        if ((building != null) && building.equals("yes") && (wayDTO.getStreet() != null) && (wayDTO.getHousenumber() != null)) {
-            wayDTO.setIsBuilding(true);
-            wayDTO.setIsGarage(false);
-        } else if (building != null && building.equals("garages")) {
-            wayDTO.setIsGarage(true);
-            wayDTO.setIsBuilding(false);
-        } else {
-            wayDTO.setIsBuilding(false);
-            wayDTO.setIsGarage(false);
-        }
+            String building = getValueOfTagXmlByKey(tagXmls, "building");
+            if ((building != null) && building.equals("yes") && (wayDTO.getStreet() != null) && (wayDTO.getHousenumber() != null)) {
+                wayDTO.setIsBuilding(true);
+                wayDTO.setIsGarage(false);
+            } else if (building != null && building.equals("garages")) {
+                wayDTO.setIsGarage(true);
+                wayDTO.setIsBuilding(false);
+            } else {
+                wayDTO.setIsBuilding(false);
+                wayDTO.setIsGarage(false);
+            }
 
-        // Find the duplicated node in building object for defining a computable point
-        if (wayDTO.getIsBuilding() != null && wayDTO.getIsBuilding()) {
-            Long value = findDuplicatedNodeDtoByNdXmls(wayXml.getNds());
-            wayDTO.setRefNode(value);
+            // Find the duplicated node in building object for defining a computable point
+            if (wayDTO.getIsBuilding() != null && wayDTO.getIsBuilding()) {
+                Long value = findDuplicatedNodeDtoByNdXmls(wayXml.getNds());
+                wayDTO.setRefNode(value);
+            }
         }
 
         Set<NodeDTO> nodeDTOSet = findNodeDtoByNdXmls(nodes, wayXml.getNds());
