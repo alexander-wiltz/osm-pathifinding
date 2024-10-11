@@ -23,6 +23,6 @@ public class Node implements Serializable {
     @Column(name = "lat", nullable = false)
     private Double latitude;
 
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "nodes")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "nodes")
     private Set<Street> streets;
 }

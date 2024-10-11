@@ -46,7 +46,6 @@ public class PathfindingApplication extends SpringBootServletInitializer {
 
     // run just a single time if there is no data in database
     @Bean
-    //@ConditionalOnProperty(name = "app.runner.enabled", havingValue = "true")
     public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService) {
         return (args) -> {
             if(!appRunnerEnabled.equals("true")) {

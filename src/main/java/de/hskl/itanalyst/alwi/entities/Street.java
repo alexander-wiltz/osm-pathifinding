@@ -12,7 +12,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "streets", indexes = {
-        @Index(name = "street_housenumber_idx",  columnList="street,housenumber"),
+        @Index(name = "street_housenumber_idx",  columnList="street,housenumber", unique = true),
         @Index(name = "fk_parent_idx", columnList = "parent")
 })
 public class Street implements Serializable {
@@ -24,7 +24,7 @@ public class Street implements Serializable {
     @Column(name = "isBuilding")
     private Boolean isBuilding;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent")
     private Street parent;
 
@@ -37,7 +37,7 @@ public class Street implements Serializable {
     @Column(name = "housenumber")
     private String housenumber;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "street_node_relation",
             joinColumns = @JoinColumn(name = "street_id", referencedColumnName = "id"),

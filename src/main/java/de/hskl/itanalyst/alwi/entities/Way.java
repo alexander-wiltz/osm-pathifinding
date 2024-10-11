@@ -67,7 +67,7 @@ public class Way implements Serializable {
     @Column(name="refNode")
     private Long refNode;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "node_way_relation",
             joinColumns = @JoinColumn(name = "way_id", referencedColumnName = "id"),
