@@ -8,7 +8,6 @@ import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
 import de.hskl.itanalyst.alwi.geomodel.GeoJsonObject;
-import de.hskl.itanalyst.alwi.localstorage.LocalStorage;
 import de.hskl.itanalyst.alwi.services.GeoJsonService;
 import de.hskl.itanalyst.alwi.services.NodeService;
 import de.hskl.itanalyst.alwi.services.StreetService;
@@ -38,7 +37,9 @@ public class PathfindingController extends BaseController {
     private AStar aStarAlgorithm;
 
     @Autowired
-    private LocalStorage localStorage;
+    private StreetService streetService;
+    @Autowired
+    private NodeService nodeService;
 
     @Operation(summary = "Compute way and respond with GeoJson-Object.")
     @ApiResponse(responseCode = "200", description = "GeoJson Object successfully created.")
@@ -50,21 +51,43 @@ public class PathfindingController extends BaseController {
             @RequestParam(name = "tgStr") String targetStreet,
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
-        List<StreetDTO> startStreets = localStorage.findStreetByName(startStreet);
-        List<StreetDTO> targetStreets = localStorage.findStreetByName(targetStreet);
+        List<StreetDTO> startStreets = streetService.findByStreet(startStreet); //globalCache.findStreetByName(startStreet);
+        List<StreetDTO> targetStreets = streetService.findByStreet(targetStreet); //globalCache.findStreetByName(targetStreet);
 
-        NodeDTO startNode = localStorage.getNodeOfStreetObject(startStreet, startNumber, startStreets);
-        NodeDTO targetNode = localStorage.getNodeOfStreetObject(targetStreet, targetNumber, targetStreets);
+        NodeDTO startNode = getNodeOfStreet(startNumber, startStreets);
+        NodeDTO targetNode = getNodeOfStreet(targetNumber, targetStreets);
+        //globalCache.getNodeOfStreetObject(targetStreet, targetNumber, targetStreets);
 
         // TODO initial graph building
-        List<StreetDTO> streets = localStorage.getGlobalStreetDTOs();
-        List<NodeDTO> nodes = localStorage.getGlobalNodeDTOs();
+        List<StreetDTO> streets = streetService.findAllStreets(); // globalCache.getGlobalStreetDTOs();
+        List<NodeDTO> nodes = nodeService.findAllNodes(); // globalCache.getGlobalNodeDTOs();
         Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
 
         List<NodeDTO> route = aStarAlgorithm.findRoute(graph, startNode.getId(), targetNode.getId());
         GeoJsonObject geoJsonObject = geoJsonService.createGeoJsonObject(startNode, targetNode, route);
 
         return ResponseEntity.ok(geoJsonObject);
+    }
+
+    /**
+     * Taking a house from an address
+     * @param number house-number
+     * @param streets list of streets
+     * @return NodeDTO
+     * @throws NodeNotFoundException exception
+     */
+    private NodeDTO getNodeOfStreet(String number, List<StreetDTO> streets) throws NodeNotFoundException {
+        StreetDTO address = streets.stream().filter(s -> s.getHousenumber() != null && s.getHousenumber().equals(number)).findFirst().orElse(null);
+        NodeDTO node;
+        if (address != null) {
+            node = address.getNodes().stream().toList().get(0);
+        } else {
+            String errMsg = String.format("No match for number: %s.", number);
+            log.error(errMsg);
+            throw new NodeNotFoundException(errMsg);
+        }
+
+        return node;
     }
 
 }

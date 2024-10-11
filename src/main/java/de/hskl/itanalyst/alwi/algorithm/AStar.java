@@ -3,12 +3,11 @@ package de.hskl.itanalyst.alwi.algorithm;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
-import de.hskl.itanalyst.alwi.localstorage.LocalStorage;
+import de.hskl.itanalyst.alwi.globalcache.GlobalCache;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -16,9 +15,6 @@ import java.util.*;
 @AllArgsConstructor
 @Component
 public class AStar {
-
-    @Autowired
-    private LocalStorage localStorage;
 
     public List<NodeDTO> findRoute(Graph<NodeDTO> map, Long startNodeId, Long targetNodeId) throws WayNotComputableException {
         RouteFinder<NodeDTO> routeFinder = new RouteFinder<>(map, new HaversineFormula(), new HaversineFormula());
