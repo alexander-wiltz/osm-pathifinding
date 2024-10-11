@@ -40,6 +40,9 @@ public class ObjectHandlerService {
 
         // Add all the divided ways without the buildings
         for (WayDTO wayDTO : justWays) {
+            if (alreadyExists(wayDTO, streets)) {
+                continue;
+            }
             StreetDTO streetDTO = new StreetDTO();
             streetDTO.setId(wayDTO.getId());
             streetDTO.setIsBuilding(wayDTO.getIsBuilding());
@@ -52,6 +55,9 @@ public class ObjectHandlerService {
         log.debug("Built {} streets.", streets.size());
 
         for (WayDTO buildingFromWayObject : justBuildings) {
+            if (alreadyExists(buildingFromWayObject, streets)) {
+                continue;
+            }
             if (!buildingFromWayObject.getIsBuilding()) {
                 log.info("Accessed way object declared as building, but attribute is missing. Way={}", buildingFromWayObject.getId());
                 continue;
@@ -175,8 +181,7 @@ public class ObjectHandlerService {
         wayDTO.setId(wayXml.getId());
 
         List<TagXml> tagXmls = wayXml.getTags();
-        if(tagXmls != null && !tagXmls.isEmpty()) {
-            log.debug("No Tags detected. Skip. Way={}", wayXml.getId());
+        if (tagXmls != null && !tagXmls.isEmpty()) {
             wayDTO.setHighway(getValueOfTagXmlByKey(tagXmls, "highway"));
             wayDTO.setName(getValueOfTagXmlByKey(tagXmls, "name"));
             wayDTO.setCity(getValueOfTagXmlByKey(tagXmls, "city"));
@@ -210,6 +215,8 @@ public class ObjectHandlerService {
                 Long value = findDuplicatedNodeDtoByNdXmls(wayXml.getNds());
                 wayDTO.setRefNode(value);
             }
+        } else {
+            log.debug("No Tags detected. Skip. Way={}", wayXml.getId());
         }
 
         Set<NodeDTO> nodeDTOSet = findNodeDtoByNdXmls(nodes, wayXml.getNds());
@@ -221,6 +228,7 @@ public class ObjectHandlerService {
     // endregion
 
     // region Helping Utilities
+
     /**
      * get the value of a tag object by a given key
      *
@@ -263,6 +271,16 @@ public class ObjectHandlerService {
         }
 
         return null;
+    }
+
+    private boolean alreadyExists(WayDTO wayDTO, List<StreetDTO> streetDTOs) {
+        for (StreetDTO streetDTO : streetDTOs) {
+            if (streetDTO.getId().equals(wayDTO.getId())) {
+                log.info("Way-Object already exists. Way={}", wayDTO.getId());
+                return true;
+            }
+        }
+        return false;
     }
 
     //endregion
