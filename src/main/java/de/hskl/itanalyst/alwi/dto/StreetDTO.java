@@ -2,13 +2,12 @@ package de.hskl.itanalyst.alwi.dto;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
-
 
 @Getter
 @Setter
@@ -16,25 +15,19 @@ import java.util.Set;
 @AllArgsConstructor
 public class StreetDTO implements Serializable {
 
-    @Id
-    @Column(name = "id")
+    @NonNull
     private Long id;
 
-    @Column(name = "isBuilding")
+    @NonNull
     private Boolean isBuilding;
 
-    @JsonBackReference
     private StreetDTO parent;
 
-    @ToString.Exclude
-    @JsonManagedReference
     private Collection<StreetDTO> children;
 
-    @Column(name = "street")
+    @NonNull
     private String street;
-
-    @Column(name = "housenumber")
-    private String housenumber;
+    private String houseNumber;
 
     @JsonManagedReference
     private Set<NodeDTO> nodes;
