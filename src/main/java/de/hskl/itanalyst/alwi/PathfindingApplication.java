@@ -1,7 +1,9 @@
 package de.hskl.itanalyst.alwi;
 
 import de.hskl.itanalyst.alwi.services.FileHandlerService;
+import de.hskl.itanalyst.alwi.services.NodeService;
 import de.hskl.itanalyst.alwi.services.StreetService;
+import de.hskl.itanalyst.alwi.utilities.TimeTracker;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,21 +43,36 @@ public class PathfindingApplication extends SpringBootServletInitializer {
     // activate cache for main entities
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("streets", "nodes", "ways");
+        return new ConcurrentMapCacheManager("streets", "nodes", "ways", "graph");
     }
 
     // run just a single time if there is no data in database
     @Bean
-    public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService) {
+    public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService, TimeTracker timeTracker, NodeService nodeService) {
         return (args) -> {
-            if(!appRunnerEnabled.equals("true")) {
+            if (!appRunnerEnabled.equals("true")) {
+                timeTracker.startTime();
                 log.info("Command Line Runner is not enabled. Start caching from database.");
-                //streetService.findAllStreets();
-                log.info("Command Line Runner finished caching from database.");
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Start caching Streets.");
+                }
+                streetService.findAllStreets();
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Start caching Nodes.");
+                }
+                nodeService.findAllNodes();
+
+                timeTracker.endTime(PathfindingApplication.class.getName());
+                log.info("Command Line Runner finished caching from database. Waiting for requests...");
             } else {
                 log.info("Command Line Runner is enabled. Start persisting data to database.");
+
                 String filename = "C:\\workspace\\osm-pathfinding\\src\\main\\resources\\osm\\export_ueberherrn+wohnstadt_nw.osm";
                 fileHandlerService.saveFileDataToDatabase(filename);
+
+                log.info("Command Line Runner is ready. Waiting for requests...");
             }
         };
     }

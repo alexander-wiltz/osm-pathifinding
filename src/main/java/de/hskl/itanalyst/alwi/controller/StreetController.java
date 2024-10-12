@@ -5,9 +5,7 @@ import de.hskl.itanalyst.alwi.services.StreetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +18,7 @@ import java.util.Optional;
 @RestController
 @Tag(name = "Streets and Addresses")
 @RequestMapping("/streets")
-public class StreetController extends BaseController {
+public class StreetController {
 
     @Autowired
     private StreetService streetService;
@@ -41,24 +39,16 @@ public class StreetController extends BaseController {
         return streetDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Get street by name from database.")
+    @Operation(summary = "Get street by name and optional house number from database.")
     @ApiResponse(responseCode = "200", description = "Address found.")
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<StreetDTO>> getStreetByAddress(@RequestParam(name = "name") String name, @RequestParam(name = "number", required = false) String housenumber) {
+    public ResponseEntity<List<StreetDTO>> getStreetByAddress(@RequestParam(name = "name") String name, @RequestParam(name = "number", required = false) String houseNumber) {
         List<StreetDTO> streetDTOs = streetService.findByStreet(name);
-        if (housenumber == null || housenumber.isEmpty()) {
+        if (houseNumber == null || houseNumber.isEmpty()) {
             return ResponseEntity.ok().body(streetDTOs);
         } else {
-            List<StreetDTO> buildings = streetDTOs.stream().filter(s -> housenumber.equals(s.getHousenumber())).findFirst().stream().toList();
+            List<StreetDTO> buildings = streetDTOs.stream().filter(s -> houseNumber.equals(s.getHouseNumber())).findFirst().stream().toList();
             return ResponseEntity.ok().body(buildings);
         }
-    }
-
-    @Operation(summary = "Add street.")
-    @ApiResponse(responseCode = "201", description = "Street added successfully.")
-    @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StreetDTO> addStreet(@Valid @RequestBody StreetDTO streetDTO) {
-        StreetDTO savedStreetDTO = streetService.saveStreet(streetDTO);
-        return ResponseEntity.ok().body(savedStreetDTO);
     }
 }

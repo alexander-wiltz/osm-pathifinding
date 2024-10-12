@@ -3,10 +3,9 @@ package de.hskl.itanalyst.alwi.algorithm;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
-import de.hskl.itanalyst.alwi.globalcache.GlobalCache;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -21,6 +20,7 @@ public class AStar {
         return routeFinder.findRoute(map.getNode(startNodeId), map.getNode(targetNodeId));
     }
 
+    @Cacheable(cacheNames = "graph")
     public Graph<NodeDTO> prepareGraph(List<StreetDTO> streets, List<NodeDTO> nodes) {
 //        List<StreetDTO> streets = localStorage.getGlobalStreetDTOs();
 //        List<NodeDTO> nodes = localStorage.getGlobalNodeDTOs();
@@ -61,7 +61,7 @@ public class AStar {
                             nodeIds.addAll(child.getNodes().stream().map(NodeDTO::getId).toList());
                         }
 
-                        log.trace("Added {} elements for House={} {}", nodeIds.size(), street.getStreet(), street.getHousenumber());
+                        log.trace("Added {} elements for House={} {}", nodeIds.size(), street.getStreet(), street.getHouseNumber());
                     }
                 }
                 // endregion

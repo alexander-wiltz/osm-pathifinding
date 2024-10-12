@@ -33,7 +33,7 @@ paths:
           required: true
           schema:
             type: "string"
-        - name: "number"
+        - name: "houseNumber"
           in: "query"
           required: false
           schema:

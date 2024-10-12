@@ -72,7 +72,7 @@ public class GlobalCache {
      * @throws NodeNotFoundException exception
      */
     public NodeDTO getNodeOfStreetObject(String street, String number, List<StreetDTO> streets) throws NodeNotFoundException {
-        StreetDTO address = streets.stream().filter(s -> s.getHousenumber() != null && s.getHousenumber().equals(number)).findFirst().orElse(null);
+        StreetDTO address = streets.stream().filter(s -> s.getHouseNumber() != null && s.getHouseNumber().equals(number)).findFirst().orElse(null);
         NodeDTO node;
         if (address != null) {
             node = address.getNodes().stream().toList().get(0);
