@@ -5,9 +5,7 @@ import de.hskl.itanalyst.alwi.services.NodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +18,7 @@ import java.util.Optional;
 @RestController
 @Tag(name = "Nodes")
 @RequestMapping("/nodes")
-public class NodeController extends BaseController {
+public class NodeController {
 
     @Autowired
     private NodeService nodeService;
@@ -39,13 +37,5 @@ public class NodeController extends BaseController {
     public ResponseEntity<NodeDTO> getNodeById(@PathVariable Long id) {
         Optional<NodeDTO> nodeDTO = nodeService.findNodeById(id);
         return nodeDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @Operation(summary = "Add node.")
-    @ApiResponse(responseCode = "201", description = "Node added successfully.")
-    @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NodeDTO> addNode(@Valid @RequestBody NodeDTO nodeDTO) {
-        NodeDTO nodeDTOSaved = nodeService.saveNode(nodeDTO);
-        return ResponseEntity.ok().body(nodeDTOSaved);
     }
 }

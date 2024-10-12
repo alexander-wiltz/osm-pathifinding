@@ -1,14 +1,11 @@
 package de.hskl.itanalyst.alwi.controller;
 
 import de.hskl.itanalyst.alwi.dto.WayDTO;
-import de.hskl.itanalyst.alwi.entities.Way;
 import de.hskl.itanalyst.alwi.services.WayService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +18,7 @@ import java.util.Optional;
 @RestController
 @Tag(name = "Way-Objects: Buildings, Streets and others")
 @RequestMapping("/ways")
-public class WayController extends BaseController {
+public class WayController {
 
     @Autowired
     private WayService wayService;
@@ -40,13 +37,5 @@ public class WayController extends BaseController {
     public ResponseEntity<WayDTO> getWayById(@PathVariable Long id) {
         Optional<WayDTO> wayDTO = wayService.findWayById(id);
         return wayDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @Operation(summary = "Add way.")
-    @ApiResponse(responseCode = "201", description = "Way added successfully.")
-    @PostMapping(value = "/add", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WayDTO> addWay(@Valid @RequestBody WayDTO wayDTO) {
-        WayDTO wayDTOSaved = wayService.saveWay(wayDTO);
-        return ResponseEntity.ok().body(wayDTOSaved);
     }
 }

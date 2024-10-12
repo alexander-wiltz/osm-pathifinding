@@ -28,14 +28,6 @@ public class NodeService {
 
     @CachePut(value="nodes")
     @Transactional
-    public NodeDTO saveNode(NodeDTO nodeDTO) {
-        Node node = convertToNodeEntity(nodeDTO);
-        Node savedNode = nodeRepository.save(node);
-        return convertToNodeDto(savedNode);
-    }
-
-    @CachePut(value="nodes")
-    @Transactional
     public void saveAllNodes(List<NodeDTO> nodeDTOs) {
         List<Node> nodes = nodeDTOs.stream().map(this::convertToNodeEntity).toList();
         nodeRepository.saveAll(nodes);

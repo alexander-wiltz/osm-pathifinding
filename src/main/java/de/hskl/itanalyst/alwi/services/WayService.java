@@ -28,14 +28,6 @@ public class WayService {
 
     @CachePut(value="ways")
     @Transactional
-    public WayDTO saveWay(WayDTO wayDTO) {
-        Way way = convertToWayEntity(wayDTO);
-        Way savedWay = wayRepository.save(way);
-        return convertToWayDto(savedWay);
-    }
-
-    @CachePut(value="ways")
-    @Transactional
     public void saveAllWays(List<WayDTO> wayDTOs) {
         List<Way> ways = wayDTOs.stream().map(this::convertToWayEntity).toList();
         wayRepository.saveAll(ways);
