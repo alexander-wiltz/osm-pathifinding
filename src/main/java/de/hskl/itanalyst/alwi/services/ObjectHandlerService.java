@@ -40,7 +40,7 @@ public class ObjectHandlerService {
 
         // Add all the divided ways without the buildings
         for (WayDTO wayDTO : justWays) {
-            if (alreadyExists(wayDTO, streets)) {
+            if (wayAlreadyExists(wayDTO, streets)) {
                 continue;
             }
             StreetDTO streetDTO = new StreetDTO();
@@ -55,7 +55,7 @@ public class ObjectHandlerService {
         log.debug("Built {} streets.", streets.size());
 
         for (WayDTO buildingFromWayObject : justBuildings) {
-            if (alreadyExists(buildingFromWayObject, streets)) {
+            if (wayAlreadyExists(buildingFromWayObject, streets)) {
                 continue;
             }
             if (!buildingFromWayObject.getIsBuilding()) {
@@ -101,7 +101,7 @@ public class ObjectHandlerService {
         building.setIsBuilding(buildingFromWayObject.getIsBuilding());
         building.setParent(parentStreet);
         building.setStreet(buildingFromWayObject.getStreet());
-        building.setHousenumber(buildingFromWayObject.getHousenumber());
+        building.setHouseNumber(buildingFromWayObject.getHousenumber());
         building.setNodes(new HashSet<>(1));
 
         return building;
@@ -116,6 +116,9 @@ public class ObjectHandlerService {
     public List<NodeDTO> mapNodeXmlToNodeDto(@NonNull List<NodeXml> nodeXmls) {
         List<NodeDTO> nodeDTOs = new ArrayList<>();
         for (NodeXml nodeXml : nodeXmls) {
+            if (nodeAlreadyExists(nodeXml.getId(), nodeDTOs)) {
+                continue;
+            }
             NodeDTO nodeDTO = mapNode(nodeXml);
             nodeDTOs.add(nodeDTO);
         }
@@ -273,10 +276,20 @@ public class ObjectHandlerService {
         return null;
     }
 
-    private boolean alreadyExists(WayDTO wayDTO, List<StreetDTO> streetDTOs) {
+    private boolean wayAlreadyExists(WayDTO wayDTO, List<StreetDTO> streetDTOs) {
         for (StreetDTO streetDTO : streetDTOs) {
             if (streetDTO.getId().equals(wayDTO.getId())) {
-                log.debug("Way-Object already exists. Way={}", wayDTO.getId());
+                log.info("Duplicated Way: Way-Object already exists. Way={}", wayDTO.getId());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean nodeAlreadyExists(Long nodeId, List<NodeDTO> nodeDTOs) {
+        for (NodeDTO nodeDTO : nodeDTOs) {
+            if (nodeDTO.getId().equals(nodeId)) {
+                log.info("Duplicated Node: Node-Object already exists. NodeId={}", nodeId);
                 return true;
             }
         }

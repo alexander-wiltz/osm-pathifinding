@@ -15,6 +15,8 @@ public class TimeTracker {
 
     public void endTime(String className) {
         Long endTime = System.currentTimeMillis() - startTime;
-        log.info("[{}]: Time taken: {} ms", className, endTime);
+        if (log.isDebugEnabled()) {
+            log.debug("[{}]: Time taken: {} ms", className, endTime);
+        }
     }
 }

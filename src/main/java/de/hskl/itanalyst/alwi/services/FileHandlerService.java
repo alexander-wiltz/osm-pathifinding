@@ -73,18 +73,26 @@ public class FileHandlerService {
         List<WayDTO> wayDTOs = objectHandlerService.mapWayXmlFromOsmXmlToWayDto(osmXml.getWays(), nodeDTOs);
         List<StreetDTO> streetDTOs = objectHandlerService.prepareStreetsFromWaysAndNodes(wayDTOs, nodeDTOs);
 
-        log.debug("Found {} nodes.", nodeDTOs.size());
-        log.debug("Found {} ways.", wayDTOs.size());
-        log.debug("Found {} streets and buildings.", streetDTOs.size());
+        if(log.isDebugEnabled()) {
+            log.debug("Found {} nodes.", nodeDTOs.size());
+            log.debug("Found {} ways.", wayDTOs.size());
+            log.debug("Found {} streets and buildings.", streetDTOs.size());
+        }
 
         nodeService.saveAllNodes(nodeDTOs);
-        log.debug("Nodes saved.");
+        if(log.isDebugEnabled()) {
+            log.debug("Nodes saved.");
+        }
 
         wayService.saveAllWays(wayDTOs);
-        log.debug("Ways saved.");
+        if(log.isDebugEnabled()) {
+            log.debug("Ways saved.");
+        }
 
         streetService.saveAllStreets(streetDTOs);
-        log.debug("Streets saved.");
+        if(log.isDebugEnabled()) {
+            log.debug("Streets saved.");
+        }
 
         timeTracker.endTime(this.getClass().getName());
     }

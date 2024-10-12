@@ -28,7 +28,7 @@ import java.util.List;
 @RestController
 @Tag(name = "Computing of requested ways")
 @RequestMapping("/pathfinding")
-public class PathfindingController extends BaseController {
+public class PathfindingController {
 
     @Autowired
     private GeoJsonService geoJsonService;
@@ -51,16 +51,17 @@ public class PathfindingController extends BaseController {
             @RequestParam(name = "tgStr") String targetStreet,
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
-        List<StreetDTO> startStreets = streetService.findByStreet(startStreet); //globalCache.findStreetByName(startStreet);
-        List<StreetDTO> targetStreets = streetService.findByStreet(targetStreet); //globalCache.findStreetByName(targetStreet);
+        // Fast, because of initial caching
+        List<StreetDTO> streets = streetService.findAllStreets();
+        List<NodeDTO> nodes = nodeService.findAllNodes();
+
+        List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(startStreet)).toList();
+        List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getStreet().equals(targetStreet)).toList();
 
         NodeDTO startNode = getNodeOfStreet(startNumber, startStreets);
         NodeDTO targetNode = getNodeOfStreet(targetNumber, targetStreets);
-        //globalCache.getNodeOfStreetObject(targetStreet, targetNumber, targetStreets);
 
-        // TODO initial graph building
-        List<StreetDTO> streets = streetService.findAllStreets(); // globalCache.getGlobalStreetDTOs();
-        List<NodeDTO> nodes = nodeService.findAllNodes(); // globalCache.getGlobalNodeDTOs();
+        // TODO initial graph building (maybe caching?)
         Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
 
         List<NodeDTO> route = aStarAlgorithm.findRoute(graph, startNode.getId(), targetNode.getId());
@@ -77,7 +78,7 @@ public class PathfindingController extends BaseController {
      * @throws NodeNotFoundException exception
      */
     private NodeDTO getNodeOfStreet(String number, List<StreetDTO> streets) throws NodeNotFoundException {
-        StreetDTO address = streets.stream().filter(s -> s.getHousenumber() != null && s.getHousenumber().equals(number)).findFirst().orElse(null);
+        StreetDTO address = streets.stream().filter(s -> s.getHouseNumber() != null && s.getHouseNumber().equals(number)).findFirst().orElse(null);
         NodeDTO node;
         if (address != null) {
             node = address.getNodes().stream().toList().get(0);
