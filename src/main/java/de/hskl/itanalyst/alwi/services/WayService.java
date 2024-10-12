@@ -26,20 +26,19 @@ public class WayService {
     @Autowired
     private IWayRepository wayRepository;
 
-    @CachePut(value="ways")
     @Transactional
     public void saveAllWays(List<WayDTO> wayDTOs) {
         List<Way> ways = wayDTOs.stream().map(this::convertToWayEntity).toList();
         wayRepository.saveAll(ways);
     }
 
-    @Cacheable("ways")
+    @Cacheable(cacheNames = "ways", sync=true)
     public List<WayDTO> findAllWays() {
         List<Way> ways = wayRepository.findAll();
         return ways.stream().map(this::convertToWayDto).toList();
     }
 
-    @Cacheable("ways")
+    @Cacheable(cacheNames = "ways", sync=true, key="#id")
     public Optional<WayDTO> findWayById(Long id) {
         Optional<Way> way = wayRepository.findById(id);
         return way.map(this::convertToWayDto);

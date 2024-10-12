@@ -26,20 +26,20 @@ public class NodeService {
     @Autowired
     private INodeRepository nodeRepository;
 
-    @CachePut(value="nodes")
     @Transactional
+    @Cacheable(cacheNames = "nodes", sync=true)
     public void saveAllNodes(List<NodeDTO> nodeDTOs) {
         List<Node> nodes = nodeDTOs.stream().map(this::convertToNodeEntity).toList();
         nodeRepository.saveAll(nodes);
     }
 
-    @Cacheable("nodes")
+    @Cacheable(cacheNames = "nodes", sync=true)
     public List<NodeDTO> findAllNodes() {
         List<Node> nodes = nodeRepository.findAll();
         return nodes.stream().map(this::convertToNodeDto).toList();
     }
 
-    @Cacheable("nodes")
+    @Cacheable(cacheNames = "nodes", sync=true)
     public Optional<NodeDTO> findNodeById(Long id) {
         Optional<Node> node = nodeRepository.findById(id);
         return node.map(this::convertToNodeDto);
