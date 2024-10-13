@@ -8,10 +8,10 @@ function getFormData() {
     let target = parseAddress(targetInputForm);
 
     if (start.error) {
-        console.error("Fehler beim Adress-Parsing:", start.error);
+        console.error("Fehler beim Parsing der Adresse:", start.error);
         alert(`Die eingegebene Adresse ist ungültig: ${start.error}`);
     } else if (target.error) {
-        console.error("Fehler beim Adress-Parsing:", target.error);
+        console.error("Fehler beim Parsing der Adresse:", target.error);
         alert(`Die eingegebene Adresse ist ungültig: ${target.error}`);
     } else {
         getComputedWayFromApi(start.street, start.houseNumber, target.street, target.houseNumber);
@@ -42,7 +42,7 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
                 return layer.feature.properties.name;
             }).addTo(map);
 
-            computeHeuristic(geoObj);
+            computeHeuristic(geoObj, start, startNo, target, targetNo);
 
         } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
             console.log("API nicht erreichbar...");
@@ -66,13 +66,13 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
 /**
  *
  *
- * @param features
+ * @param geoObj
  */
-function computeHeuristic(features) {
+function computeHeuristic(geoObj,startStr, startNo, targetStr, targetNo) {
     let start;
     let target;
 
-    for (let feature of features) {
+    for (let feature of geoObj) {
         if (feature.properties.name === "Start") {
             start = feature.geometry.coordinates;
         }
@@ -84,7 +84,7 @@ function computeHeuristic(features) {
     let startLatLng = L.latLng(start[0], start[1]);
     let targetLatLng = L.latLng(target[0], target[1]);
     let heuristic = startLatLng.distanceTo(targetLatLng).toFixed(3);
-    console.log("Luftlinie " + heuristic + "m");
+    console.log(`Luftlinie ${heuristic} m von ${startStr} ${startNo} nach ${targetStr} ${targetNo}`);
 }
 
 function parseAddress(address) {

@@ -11,6 +11,7 @@ import de.hskl.itanalyst.alwi.geomodel.GeoJsonObject;
 import de.hskl.itanalyst.alwi.services.GeoJsonService;
 import de.hskl.itanalyst.alwi.services.NodeService;
 import de.hskl.itanalyst.alwi.services.StreetService;
+import de.hskl.itanalyst.alwi.utilities.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,14 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @Slf4j
 @RestController
+@CrossOrigin
 @Tag(name = "Computing of requested ways")
 @RequestMapping("/pathfinding")
 public class PathfindingController {
@@ -38,8 +38,12 @@ public class PathfindingController {
 
     @Autowired
     private StreetService streetService;
+
     @Autowired
     private NodeService nodeService;
+
+    @Autowired
+    private StringUtils stringUtils;
 
     @Operation(summary = "Compute way and respond with GeoJson-Object.")
     @ApiResponse(responseCode = "200", description = "GeoJson Object successfully created.")
@@ -51,18 +55,22 @@ public class PathfindingController {
             @RequestParam(name = "tgStr") String targetStreet,
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
-        // Fast, because of initial caching
+        // Capitalize given address
+        final String capitalizedStartStreet = stringUtils.capitalizeStringFromUI(startStreet);
+        final String capitalizedTargetStreet = stringUtils.capitalizeStringFromUI(targetStreet);
+
+        // streets, nodes and graph will be initialized
         List<StreetDTO> streets = streetService.findAllStreets();
         List<NodeDTO> nodes = nodeService.findAllNodes();
+        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
 
-        List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(startStreet)).toList();
-        List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getStreet().equals(targetStreet)).toList();
+        // look up for streets from interface
+        List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(capitalizedStartStreet)).toList();
+        List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getStreet().equals(capitalizedTargetStreet)).toList();
 
+        // find main nodes
         NodeDTO startNode = getNodeOfStreet(startNumber, startStreets);
         NodeDTO targetNode = getNodeOfStreet(targetNumber, targetStreets);
-
-        // TODO initial graph building (maybe caching?)
-        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
 
         List<NodeDTO> route = aStarAlgorithm.findRoute(graph, startNode.getId(), targetNode.getId());
         GeoJsonObject geoJsonObject = geoJsonService.createGeoJsonObject(startNode, targetNode, route);
