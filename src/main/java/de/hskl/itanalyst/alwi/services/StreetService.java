@@ -11,10 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,13 +31,13 @@ public class StreetService {
     private IStreetRepository streetRepository;
 
     @Transactional
-    @Cacheable(cacheNames = "streets", sync = true)
+    @Cacheable(value = "streets", sync = true)
     public void saveAllStreets(List<StreetDTO> streetsDTOs) {
         List<Street> streets = streetsDTOs.stream().map(this::convertToStreetEntity).toList();
         streetRepository.saveAll(streets);
     }
 
-    @Cacheable(cacheNames = "streets", sync = true)
+    @Cacheable(value = "streets", sync = true)
     public List<StreetDTO> findAllStreets() {
         List<Street> streets = streetRepository.findAll();
         List<StreetDTO> streetDTOs = streets.stream().map(this::convertToStreetDto).toList();
@@ -47,20 +45,20 @@ public class StreetService {
         return updateStreetRelations(streetDTOs);
     }
 
-    @Cacheable(cacheNames = "streets", sync = true)
+    @Cacheable(value = "streets", key = "#id", sync = true)
     public Optional<StreetDTO> findStreetById(Long id) {
         Optional<Street> street = streetRepository.findById(id);
         return street.map(this::convertToStreetDto);
     }
 
-    @Cacheable(cacheNames = "streets", sync = true)
+    @Cacheable(value = "streets", key = "#name", sync = true)
     public List<StreetDTO> findByStreet(String name) {
         List<Street> streets = streetRepository.findByStreet(name);
         return streets.stream().map(this::convertToStreetDto).toList();
     }
 
     // TODO Implementation idea when street object could be loaded without node information
-    @Cacheable(cacheNames = "streets", sync = true)
+    @Cacheable(value = "streets", sync = true)
     public NodeDTO getExplicitNodeOfStreetObject(StreetDTO streetDTO) throws NodeNotFoundException {
         if (streetDTO.getParent() == null) {
             Optional<Street> street = streetRepository.findById(streetDTO.getId());
