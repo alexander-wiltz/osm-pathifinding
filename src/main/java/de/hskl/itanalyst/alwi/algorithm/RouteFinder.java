@@ -28,11 +28,19 @@ public class RouteFinder<T extends INode> {
         openSet.add(start);
 
         while (!openSet.isEmpty()) {
-            log.debug("Open Set contains: {}", openSet.stream().map(RouteNode::getCurrent).collect(Collectors.toSet()));
+            if (log.isDebugEnabled()) {
+                log.debug("Open Set contains: {}", openSet.stream().map(RouteNode::getCurrent).collect(Collectors.toSet()));
+            }
+
             RouteNode<T> next = openSet.poll();
-            log.debug("Looking at node: {}", next);
+            if (log.isDebugEnabled()) {
+                log.debug("Looking at node: {}", next);
+            }
+
             if (next.getCurrent().equals(to)) {
-                log.debug("Found destination!");
+                if (log.isDebugEnabled()) {
+                    log.debug("Found destination!");
+                }
                 List<T> route = new ArrayList<>();
                 RouteNode<T> current = next;
                 do {
@@ -40,7 +48,7 @@ public class RouteFinder<T extends INode> {
                     current = allNodes.get(current.getPredecessor());
                 } while (current != null);
 
-                log.debug("Route: {}", route);
+                log.info("Route: {}", route);
                 return route;
             }
 
@@ -54,7 +62,9 @@ public class RouteFinder<T extends INode> {
                     nextNode.setRouteScore(newScore);
                     nextNode.setEstimatedScore(newScore + targetScorer.computeDistance(connection, to));
                     openSet.add(nextNode);
-                    log.debug("Found better route to node: {}", nextNode);
+                    if(log.isDebugEnabled()) {
+                        log.debug("Found better route to node: {}", nextNode);
+                    }
                 }
             });
         }

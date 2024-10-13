@@ -8,9 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cache.CacheManager;
@@ -50,30 +49,28 @@ public class PathfindingApplication extends SpringBootServletInitializer {
     @Bean
     public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService, TimeTracker timeTracker, NodeService nodeService) {
         return (args) -> {
-            if (!appRunnerEnabled.equals("true")) {
-                timeTracker.startTime();
-                log.info("Command Line Runner is not enabled. Start caching from database.");
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Start caching Streets.");
-                }
-                streetService.findAllStreets();
-
-                if (log.isDebugEnabled()) {
-                    log.debug("Start caching Nodes.");
-                }
-                nodeService.findAllNodes();
-
-                timeTracker.endTime(PathfindingApplication.class.getName());
-                log.info("Command Line Runner finished caching from database. Waiting for requests...");
-            } else {
+            if (appRunnerEnabled.equals("true")) {
                 log.info("Command Line Runner is enabled. Start persisting data to database.");
 
                 String filename = "C:\\workspace\\osm-pathfinding\\src\\main\\resources\\osm\\export_ueberherrn+wohnstadt_nw.osm";
                 fileHandlerService.saveFileDataToDatabase(filename);
-
-                log.info("Command Line Runner is ready. Waiting for requests...");
             }
+
+            timeTracker.startTime();
+            log.info("Data should be in the database. Start caching from database.");
+
+            if (log.isDebugEnabled()) {
+                log.debug("Start caching Streets.");
+            }
+            streetService.findAllStreets();
+
+            if (log.isDebugEnabled()) {
+                log.debug("Start caching Nodes.");
+            }
+            nodeService.findAllNodes();
+
+            timeTracker.endTime(PathfindingApplication.class.getName());
+            log.info("Command Line Runner finished caching from database. Waiting for requests...");
         };
     }
 }

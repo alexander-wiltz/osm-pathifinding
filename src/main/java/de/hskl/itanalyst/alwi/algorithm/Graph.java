@@ -41,7 +41,9 @@ public class Graph<T extends INode> {
      * @return list with generic node objects
      */
     public Set<T> getConnections(T node) {
-        log.debug("Looking for NodeId={}", node.getId());
+        if(log.isDebugEnabled()) {
+            log.debug("Looking for NodeId={}", node.getId());
+        }
         return connections
                 .get(node.getId())
                 .stream()

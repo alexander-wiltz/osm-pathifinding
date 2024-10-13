@@ -20,10 +20,8 @@ public class AStar {
         return routeFinder.findRoute(map.getNode(startNodeId), map.getNode(targetNodeId));
     }
 
-    @Cacheable(cacheNames = "graph")
+    @Cacheable(value = "graph")
     public Graph<NodeDTO> prepareGraph(List<StreetDTO> streets, List<NodeDTO> nodes) {
-//        List<StreetDTO> streets = localStorage.getGlobalStreetDTOs();
-//        List<NodeDTO> nodes = localStorage.getGlobalNodeDTOs();
         Map<Long, Set<Long>> connections = new HashMap<>();
 
         /*
