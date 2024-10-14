@@ -14,22 +14,24 @@
         <h1>Wegfinder</h1>
         <hr>
         <div class="row">
-            <div class="col-lg-3"></div>
-            <div class="col-lg-6">
-                <div class="row text-center">
-                    <div class="col-md-5 p-1">
-                        <label for="input-start"><i class="bi bi-house-door-fill"></i> Von</label>
-                        <input type="text" id="input-start" placeholder="Startadresse" class="border-info border-1 border-opacity-50 rounded">
-                    </div>
-                    <div class="col-md-5 p-1">
-                        <label for="input-ziel"><i class="bi bi-flag-fill"></i> Nach</label>
-                        <input type="text" id="input-ziel" placeholder="Zieladresse" class="border-info border-1 border-opacity-50 rounded">
-                    </div>
-                    <div class="col-md-2 p-1">
-                        <button class="rounded bg-info" onclick="getFormData();">Suchen</button>
-                    </div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="row">
+                    <form>
+                        <div class="mb-4">
+                            <label for="input-start" class="form-label">Startadresse: </label>
+                            <input type="text" class="form-control" id="input-start" placeholder="Startadresse">
+                        </div>
+                        <div class="mb-4">
+                            <label for="input-ziel" class="form-label">Zieladresse: </label>
+                            <input type="text" class="form-control" id="input-ziel" placeholder="Zieladresse">
+                        </div>
+                        <div class="mb-4">
+                            <button type="submit" class="btn btn-primary" onclick="getFormData();">Suchen</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="row text-center p-3" style="visibility: hidden">
+                <div class="row text-center p-3" style="display: none">
                     <div class="col-md-4 p-1">
                         <label class="form-check-label" for="check-car"><i class="bi bi-car-front-fill"></i> Auto</label>
                         <input class="form-check-input" name="check-radio" type="radio" id="check-car" value="car" title="car">
@@ -44,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3"></div>
+            <div class="col-lg-4"></div>
         </div>
         <hr>
         <div class="row text-center p-1">
@@ -52,13 +54,6 @@
             <div class="col-md-10 p-3" id="mymap">
                 <div id='map' class='rounded'></div>
             </div>
-            <!--div class="col-md-4 p-3">
-                <p><i class="bi bi-house-door-fill"></i> Start</p>
-                <p>Platzhalter für Wegliste (Pfeile aus Icons)</p>
-                <p><i class="bi bi-arrow-90deg-left"></i> <i class="bi bi-arrow-90deg-right"></i></p>
-                <p><i class="bi bi-arrow-up"></i> <i class="bi bi-arrow-clockwise"></i></p>
-                <p><i class="bi bi-flag-fill"></i> Ziel</p>
-            </div-->
             <div class="col-md-1 p-3"></div>
         </div>
     </div>
