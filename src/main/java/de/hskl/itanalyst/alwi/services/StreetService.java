@@ -1,9 +1,7 @@
 package de.hskl.itanalyst.alwi.services;
 
-import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.entities.Street;
-import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.repositories.IStreetRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -55,22 +53,6 @@ public class StreetService {
     public List<StreetDTO> findByStreet(String name) {
         List<Street> streets = streetRepository.findByStreet(name);
         return streets.stream().map(this::convertToStreetDto).toList();
-    }
-
-    // TODO Implementation idea when street object could be loaded without node information
-    @Cacheable(value = "streets", sync = true)
-    public NodeDTO getExplicitNodeOfStreetObject(StreetDTO streetDTO) throws NodeNotFoundException {
-        if (streetDTO.getParent() == null) {
-            Optional<Street> street = streetRepository.findById(streetDTO.getId());
-            if (street.isPresent()) {
-                StreetDTO streetDTOValue = convertToStreetDto(street.get());
-                return streetDTOValue.getNodes().stream().findFirst().orElse(null);
-            }
-        }
-
-        String errMsg = String.format("No match for street: %s.", streetDTO.getId());
-        log.error(errMsg);
-        throw new NodeNotFoundException(errMsg);
     }
 
     private StreetDTO convertToStreetDto(Street street) {
