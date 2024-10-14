@@ -7,6 +7,7 @@ import jakarta.xml.bind.Unmarshaller;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 import java.io.StringReader;
 
 
@@ -27,7 +28,7 @@ public class XmlHandlerService {
     @SuppressWarnings("unchecked")
     public <T> T getObjectFromXmlString(@NonNull String xml, Class<T> genericClass) {
         if (xml.isEmpty()) {
-            log.debug("XML-String should not be empty");
+            log.info("XML-String should not be empty");
             return null;
         }
 
@@ -45,7 +46,7 @@ public class XmlHandlerService {
             log.error("Error while generating the object from XML-String", exception);
         }
 
-        if (object != null) {
+        if (object != null && log.isDebugEnabled()) {
             log.debug("String successfully generated.");
         }
 

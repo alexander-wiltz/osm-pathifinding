@@ -99,7 +99,9 @@ public class AStar {
             nodeContainer.addAll(street.getNodes());
         }
 
-        log.debug("Node-Container built successfully. Found {} nodes.", nodeContainer.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Node-Container built successfully. Found {} nodes.", nodeContainer.size());
+        }
         return nodeContainer;
     }
 }

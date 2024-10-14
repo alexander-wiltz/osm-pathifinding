@@ -52,7 +52,9 @@ public class ObjectHandlerService {
 
             streets.add(streetDTO);
         }
-        log.debug("Built {} streets.", streets.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Built {} streets.", streets.size());
+        }
 
         for (WayDTO buildingFromWayObject : justBuildings) {
             if (wayAlreadyExists(buildingFromWayObject, streets)) {
@@ -87,11 +89,13 @@ public class ObjectHandlerService {
                 optionalStreetObject.get().getChildren().add(building);
                 streets.add(building);
             } else {
-                log.debug("Reference object not found. Way={}", buildingFromWayObject.getId());
+                log.info("Reference object not found. Way={}", buildingFromWayObject.getId());
             }
         }
 
-        log.debug("Built {} street and buildings.", streets.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Built {} street and buildings.", streets.size());
+        }
         return streets;
     }
 
@@ -128,7 +132,9 @@ public class ObjectHandlerService {
             return null;
         }
 
-        log.debug("Built {} nodes.", nodeDTOs.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Built {} nodes.", nodeDTOs.size());
+        }
         return nodeDTOs;
     }
 
@@ -151,7 +157,9 @@ public class ObjectHandlerService {
             return null;
         }
 
-        log.debug("Built {} ways.", wayDTOs.size());
+        if (log.isDebugEnabled()) {
+            log.debug("Built {} ways.", wayDTOs.size());
+        }
         return wayDTOs;
     }
 
@@ -219,7 +227,7 @@ public class ObjectHandlerService {
                 wayDTO.setRefNode(value);
             }
         } else {
-            log.debug("No Tags detected. Skip. Way={}", wayXml.getId());
+            log.trace("No Tags detected. Skip. Way={}", wayXml.getId());
         }
 
         Set<NodeDTO> nodeDTOSet = findNodeDtoByNdXmls(nodes, wayXml.getNds());

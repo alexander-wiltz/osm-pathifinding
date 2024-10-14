@@ -67,7 +67,9 @@ public class GeoJsonService {
         geoJsonFeatures.add(geoJsonFeatureZiel);
         geoJsonFeatures.add(geoJsonFeatureWay);
 
-        log.debug("GeoJsonObject created successfully.");
+        if (log.isDebugEnabled()) {
+            log.debug("GeoJsonObject created successfully.");
+        }
         return new GeoJsonObject(geoJsonFeatures);
     }
 }
