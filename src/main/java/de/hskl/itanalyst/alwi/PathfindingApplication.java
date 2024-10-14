@@ -3,6 +3,7 @@ package de.hskl.itanalyst.alwi;
 import de.hskl.itanalyst.alwi.services.FileHandlerService;
 import de.hskl.itanalyst.alwi.services.NodeService;
 import de.hskl.itanalyst.alwi.services.StreetService;
+import de.hskl.itanalyst.alwi.services.WayService;
 import de.hskl.itanalyst.alwi.utilities.TimeTracker;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,6 +26,12 @@ public class PathfindingApplication extends SpringBootServletInitializer {
     @Value("${app.runner.enabled}")
     private String appRunnerEnabled;
 
+    @Value("${app.cache.nodes}")
+    private String cacheNodes;
+
+    @Value("${app.cache.ways}")
+    private String cacheWays;
+
     public static void main(String[] args) {
         SpringApplication.run(PathfindingApplication.class, args);
     }
@@ -45,7 +52,7 @@ public class PathfindingApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService, TimeTracker timeTracker) {
+    public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService, TimeTracker timeTracker, NodeService nodeService, WayService wayService) {
         return (args) -> {
             if (appRunnerEnabled.equalsIgnoreCase("true")) {
                 log.info("Command Line Runner is enabled. Start persisting data to database.");
@@ -61,6 +68,20 @@ public class PathfindingApplication extends SpringBootServletInitializer {
                 log.debug("Start caching Streets.");
             }
             streetService.findAllStreets();
+
+            if (cacheNodes.equalsIgnoreCase("true")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache Nodes is enabled. Start caching.");
+                }
+                nodeService.findAllNodes();
+            }
+
+            if (cacheWays.equalsIgnoreCase("true")) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Cache Ways is enabled. Start caching.");
+                }
+                wayService.findAllWays();
+            }
 
             timeTracker.endTime(PathfindingApplication.class.getName());
             log.info("Command Line Runner finished caching from database. Waiting for requests...");
