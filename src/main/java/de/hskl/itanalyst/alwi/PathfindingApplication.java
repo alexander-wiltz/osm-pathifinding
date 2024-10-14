@@ -45,7 +45,7 @@ public class PathfindingApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService, TimeTracker timeTracker, NodeService nodeService) {
+    public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService, TimeTracker timeTracker) {
         return (args) -> {
             if (appRunnerEnabled.equalsIgnoreCase("true")) {
                 log.info("Command Line Runner is enabled. Start persisting data to database.");
