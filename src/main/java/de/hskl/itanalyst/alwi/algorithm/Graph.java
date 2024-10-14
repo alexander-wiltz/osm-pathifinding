@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class Graph<T extends INode> {
 
-    private final List<T> nodes;
+    private final Set<T> nodes;
     private final Map<Long, Set<Long>> connections;
 
     /**

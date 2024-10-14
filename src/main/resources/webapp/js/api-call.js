@@ -51,12 +51,6 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
         }
     }
 
-    /**
-     * @PathParam("stStr") String startStreet
-     * @PathParam("stNo") String startNumber
-     * @PathParam("tgStr") String targetStreet
-     * @PathParam("tgNo") String targetNumber
-     */
     let url = `http://localhost:8081/pathfinding?stStr=${start}&stNo=${startNo}&tgStr=${target}&tgNo=${targetNo}`;
 
     xmlhttp.open("GET", url, true);
@@ -67,6 +61,10 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
  *
  *
  * @param geoObj
+ * @param startStr
+ * @param startNo
+ * @param targetStr
+ * @param targetNo
  */
 function computeHeuristic(geoObj,startStr, startNo, targetStr, targetNo) {
     let start;

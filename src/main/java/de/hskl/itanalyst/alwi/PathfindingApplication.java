@@ -39,13 +39,11 @@ public class PathfindingApplication extends SpringBootServletInitializer {
         return new ModelMapper();
     }
 
-    // activate cache for main entities
     @Bean
     public CacheManager cacheManager() {
         return new ConcurrentMapCacheManager("streets", "nodes", "ways", "graph");
     }
 
-    // run just a single time if there is no data in database
     @Bean
     public CommandLineRunner loadInitialData(FileHandlerService fileHandlerService, StreetService streetService, TimeTracker timeTracker, NodeService nodeService) {
         return (args) -> {
@@ -64,10 +62,10 @@ public class PathfindingApplication extends SpringBootServletInitializer {
             }
             streetService.findAllStreets();
 
-            if (log.isDebugEnabled()) {
-                log.debug("Start caching Nodes.");
-            }
-            nodeService.findAllNodes();
+//            if (log.isDebugEnabled()) {
+//                log.debug("Start caching Nodes.");
+//            }
+//            nodeService.findAllNodes();
 
             timeTracker.endTime(PathfindingApplication.class.getName());
             log.info("Command Line Runner finished caching from database. Waiting for requests...");

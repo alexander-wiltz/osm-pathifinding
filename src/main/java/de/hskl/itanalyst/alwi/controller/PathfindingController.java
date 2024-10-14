@@ -61,8 +61,8 @@ public class PathfindingController {
 
         // streets, nodes and graph will be initialized
         List<StreetDTO> streets = streetService.findAllStreets();
-        List<NodeDTO> nodes = nodeService.findAllNodes();
-        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets, nodes);
+        //List<NodeDTO> nodes = nodeService.findAllNodes();
+        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets);
 
         // look up for streets from interface
         List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(capitalizedStartStreet)).toList();

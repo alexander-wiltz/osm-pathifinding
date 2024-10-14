@@ -21,9 +21,9 @@ public class AStar {
     }
 
     @Cacheable(value = "graph")
-    public Graph<NodeDTO> prepareGraph(List<StreetDTO> streets, List<NodeDTO> nodes) {
+    public Graph<NodeDTO> prepareGraph(List<StreetDTO> streets) {
         Map<Long, Set<Long>> connections = new HashMap<>();
-
+        Set<NodeDTO> nodes = buildNodeContainer(streets);
         /*
          TODO: Street Stack
          Wenn für jede Straße, deren Nodes bereits in den Connections sind, das Street-Objekt aus einem
@@ -92,8 +92,8 @@ public class AStar {
      * @param streets street-objects
      * @return Set of used Nodes
      */
-    @Deprecated
-    private Set<NodeDTO> buildNodeContainer(List<StreetDTO> streets) {
+    @Cacheable(value = "nodeContainer")
+    public Set<NodeDTO> buildNodeContainer(List<StreetDTO> streets) {
         Set<NodeDTO> nodeContainer = new HashSet<>();
         for (StreetDTO street : streets) {
             nodeContainer.addAll(street.getNodes());
