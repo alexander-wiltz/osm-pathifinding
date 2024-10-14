@@ -9,7 +9,6 @@ import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
 import de.hskl.itanalyst.alwi.geomodel.GeoJsonObject;
 import de.hskl.itanalyst.alwi.services.GeoJsonService;
-import de.hskl.itanalyst.alwi.services.NodeService;
 import de.hskl.itanalyst.alwi.services.StreetService;
 import de.hskl.itanalyst.alwi.utilities.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,9 +39,6 @@ public class PathfindingController {
     private StreetService streetService;
 
     @Autowired
-    private NodeService nodeService;
-
-    @Autowired
     private StringUtils stringUtils;
 
     @Operation(summary = "Compute way and respond with GeoJson-Object.")
@@ -59,9 +55,8 @@ public class PathfindingController {
         final String capitalizedStartStreet = stringUtils.capitalizeStringFromUI(startStreet);
         final String capitalizedTargetStreet = stringUtils.capitalizeStringFromUI(targetStreet);
 
-        // streets, nodes and graph will be initialized
+        // streets and graph will be initialized and stored in cache
         List<StreetDTO> streets = streetService.findAllStreets();
-        //List<NodeDTO> nodes = nodeService.findAllNodes();
         Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets);
 
         // look up for streets from interface
