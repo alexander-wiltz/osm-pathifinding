@@ -10,7 +10,7 @@ public class HaversineFormula implements IScorer<NodeDTO> {
     @Override
     public double computeDistance(NodeDTO start, NodeDTO target) {
         double R = 6372.8;
-        double dLat = Math.toRadians(target.getLatitude() - start.getLongitude());
+        double dLat = Math.toRadians(target.getLatitude() - start.getLatitude());
         double dLon = Math.toRadians(target.getLongitude() - start.getLongitude());
         double lat1 = Math.toRadians(start.getLatitude());
         double lat2 = Math.toRadians(target.getLatitude());
