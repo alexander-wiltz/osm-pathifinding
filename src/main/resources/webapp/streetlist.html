@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Wegfinder</title>
+    <link rel="icon" type="image/x-icon" href="./img/wandering_96.ico">
+
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="p-3 m-0 border-0 text-bg-dark" onload="getStreetListFromApi();">
+<div class="grid container">
+    <h1>Wegfinder - Straßenverzeichnis</h1>
+    <hr>
+    <div class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
+            <ul class="list-group" id="streetList">
+                <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-dark">
+                    <b>Straßenname und Anzahl der Häuser in der Straße</b>
+                </li>
+            </ul>
+        </div>
+        <div class="col-lg-3"></div>
+    </div>
+    <hr>
+    <div class="text-center">
+        <a href="./index.html" target="_self">Home</a> | Statistiken | Admin
+    </div>
+</div>
+</body>
+<script src="./js/bootstrap.min.js"></script>
+<script src="./js/api-call.js"></script>
+<script src="./js/script.js"></script>
+</html>

@@ -1,3 +1,7 @@
 #map {
     height: 500px;
 }
+
+.text-right {
+    text-align: right;
+}

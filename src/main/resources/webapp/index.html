@@ -10,58 +10,74 @@
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body class="p-3 m-0 border-0 text-bg-dark">
-    <div class="grid container">
-        <h1>Wegfinder</h1>
-        <hr>
-        <div class="row">
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4">
-                <div class="row">
-                    <form>
-                        <div class="mb-4">
-                            <label for="input-start" class="form-label">Startadresse: </label>
-                            <input type="text" class="form-control" id="input-start" placeholder="Startadresse">
-                        </div>
-                        <div class="mb-4">
-                            <label for="input-ziel" class="form-label">Zieladresse: </label>
-                            <input type="text" class="form-control" id="input-ziel" placeholder="Zieladresse">
-                        </div>
-                        <div class="mb-4">
-                            <button type="submit" class="btn btn-primary" onclick="getFormData();">Suchen</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="row text-center p-3" style="display: none">
-                    <div class="col-md-4 p-1">
-                        <label class="form-check-label" for="check-car"><i class="bi bi-car-front-fill"></i> Auto</label>
-                        <input class="form-check-input" name="check-radio" type="radio" id="check-car" value="car" title="car">
+<div class="grid container">
+    <h1>Wegfinder</h1>
+    <hr>
+    <div class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="row">
+                <form>
+                    <div class="mb-4">
+                        <label for="input-start" class="form-label">Startadresse: </label>
+                        <input type="text" class="form-control" id="input-start" placeholder="Startadresse">
                     </div>
-                    <div class="col-md-4 p-1">
-                        <label class="form-check-label" for="check-bike"><i class="bi bi-bicycle"></i> Fahrrad</label>
-                        <input class="form-check-input" name="check-radio" type="radio" id="check-bike" value="bike" title="bike">
+                    <div class="mb-4">
+                        <label for="input-ziel" class="form-label">Zieladresse: </label>
+                        <input type="text" class="form-control" id="input-ziel" placeholder="Zieladresse">
                     </div>
-                    <div class="col-md-4 p-1">
-                        <label class="form-check-label" for="check-foot"><i class="bi bi-universal-access"></i> Fußgänger</label>
-                        <input class="form-check-input" name="check-radio" type="radio" id="check-foot" value="foot" title="foot" checked>
+                    <div class="mb-4">
+                        <div class="row text-center p-1">
+                            <div class="col-md-2 p-1 invisible">
+                                <label class="form-check-label" for="check-car"><i class="bi bi-car-front-fill"></i>Auto</label>
+                                <input class="form-check-input" name="check-radio" type="radio" id="check-car" value="car" title="car">
+                            </div>
+                            <div class="col-md-3 p-1 invisible">
+                                <label class="form-check-label" for="check-bike"><i class="bi bi-bicycle"></i>Fahrrad</label>
+                                <input class="form-check-input" name="check-radio" type="radio" id="check-bike" value="bike" title="bike">
+                            </div>
+                            <div class="col-md-4 p-1 invisible">
+                                <label class="form-check-label" for="check-foot"><i class="bi bi-universal-access"></i>Fußgänger</label>
+                                <input class="form-check-input" name="check-radio" type="radio" id="check-foot" value="foot" title="foot" checked>
+                            </div>
+                            <div class="col-md-3 text-right">
+                                <button type="submit" class="btn btn-primary" onclick="getFormData();">Suchen</button>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
-            <div class="col-lg-4"></div>
         </div>
-        <hr>
-        <div class="row text-center p-1">
-            <div class="col-md-1 p-3"></div>
-            <div class="col-md-10 p-3" id="mymap">
-                <div id='map' class='rounded'></div>
-            </div>
-            <div class="col-md-1 p-3"></div>
-        </div>
-        <hr>
-        Straßenverzeichnis | Statistiken | Admin
+        <div class="col-lg-4"></div>
     </div>
+    <hr>
+    <div class="row text-center p-1">
+        <div class="col-md-1 p-3"></div>
+        <div class="col-md-10 p-3" id="mymap">
+            <div id='map' class='rounded'></div>
+        </div>
+        <div class="col-md-1 p-3"></div>
+    </div>
+    <hr>
+    <div class="text-center">
+        <a href="./streetlist.html" target="_self">Straßenverzeichnis</a> | Statistiken | Admin | <button type="button" class="btn btn-primary" id="liveToastBtn">Show live toast</button>
+    </div>
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body bg-primary">
+                Hello, world! This is a toast message. <br />
+                Here can be your error!
+                <div class="mt-2 pt-2 border-top text-right">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 <script src="./js/leaflet.js"></script>
 <script src="js/leaflet-config.js"></script>
 <script src="./js/bootstrap.min.js"></script>
 <script src="./js/api-call.js"></script>
+<script src="./js/script.js"></script>
 </html>
