@@ -57,11 +57,23 @@ public class PathfindingController {
 
         // streets and graph will be initialized and stored in cache
         List<StreetDTO> streets = streetService.findAllStreets();
-        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets);
 
         // look up for streets from interface
         List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(capitalizedStartStreet)).toList();
         List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getStreet().equals(capitalizedTargetStreet)).toList();
+
+        if (startStreets.isEmpty()) {
+            String errMsg = String.format("No match for start street with name: %s.", capitalizedStartStreet);
+            log.error(errMsg);
+            throw new StreetNotFoundException(errMsg);
+        }
+        if (targetStreets.isEmpty()) {
+            String errMsg = String.format("No match for target street with name: %s.", capitalizedTargetStreet);
+            log.error(errMsg);
+            throw new StreetNotFoundException(errMsg);
+        }
+
+        Graph<NodeDTO> graph = aStarAlgorithm.prepareGraph(streets);
 
         // find main nodes
         NodeDTO startNode = getNodeOfStreet(startNumber, startStreets);
@@ -75,7 +87,8 @@ public class PathfindingController {
 
     /**
      * Taking a house from an address
-     * @param number house-number
+     *
+     * @param number  house-number
      * @param streets list of streets
      * @return NodeDTO
      * @throws NodeNotFoundException exception
