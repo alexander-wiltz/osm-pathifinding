@@ -1,4 +1,5 @@
 let globalAddress = "http://localhost:8081";
+let geoLayer;
 
 function getFormData() {
     let startInputForm = document.getElementById("input-start").value;
@@ -23,13 +24,12 @@ function getFormData() {
 
 function getComputedWayFromApi(start, startNo, target, targetNo) {
     let xmlhttp = new XMLHttpRequest();
-
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             let way = JSON.parse(xmlhttp.responseText);
             let geoObj = way.features;
 
-            L.geoJSON(geoObj, {
+            geoLayer = L.geoJSON(geoObj, {
                 style: function (feature) {
                     switch (feature.properties.name) {
                         case 'Route':
@@ -40,20 +40,19 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
                             };
                     }
                 }
-            }).bindPopup(function (layer) {
-                return layer.feature.properties.name;
             }).addTo(map);
 
             computeHeuristic(geoObj, start, startNo, target, targetNo);
 
         } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
             console.log("API nicht erreichbar...");
-        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 500) {
-            // Bad Request → Errorhandling von Backend
+        } else if (xmlhttp.readyState === 4 && (xmlhttp.status === 404 || xmlhttp.status === 500)) {
+            // Not Found or Bad Request → Errorhandling von Backend
             let err = JSON.parse(xmlhttp.responseText);
             console.log(err);
+            console.log("Msg: " + err.error);
         } else {
-            // Cleanup on ERROR
+
         }
     }
 
@@ -72,7 +71,7 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
  * @param targetStr
  * @param targetNo
  */
-function computeHeuristic(geoObj,startStr, startNo, targetStr, targetNo) {
+function computeHeuristic(geoObj, startStr, startNo, targetStr, targetNo) {
     let start;
     let target;
 
@@ -88,7 +87,38 @@ function computeHeuristic(geoObj,startStr, startNo, targetStr, targetNo) {
     let startLatLng = L.latLng(start[0], start[1]);
     let targetLatLng = L.latLng(target[0], target[1]);
     let heuristic = startLatLng.distanceTo(targetLatLng).toFixed(3);
-    console.log(`Luftlinie ${heuristic} m von ${startStr} ${startNo} nach ${targetStr} ${targetNo}`);
+
+    // set new center after calculating the way
+    let midPoint = findCenter(startLatLng, targetLatLng);
+    let zoom = setAutomaticZoom(heuristic);
+    map.setView([midPoint.lng, midPoint.lat], zoom);
+
+    console.log(`Luftlinie ${heuristic}m von ${startStr} ${startNo} nach ${targetStr} ${targetNo}`);
+}
+
+function findCenter(...markers) {
+    let lat = 0;
+    let lng = 0;
+
+    for (let i = 0; i < markers.length; ++i) {
+        lat += markers[i].lat;
+        lng += markers[i].lng;
+    }
+
+    lat /= markers.length;
+    lng /= markers.length;
+
+    return {lat: lat, lng: lng}
+}
+
+function setAutomaticZoom(length) {
+    if(length < 500) {
+        return 18;
+    } else if (1000 < length > 500) {
+        return 16;
+    } else {
+        return 15;
+    }
 }
 
 function parseAddress(address) {
@@ -117,10 +147,10 @@ function getStreetListFromApi() {
 
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            let response = JSON.parse(xmlhttp.responseText);;
+            let response = JSON.parse(xmlhttp.responseText);
 
             let table = document.getElementById("streetList");
-            for(street of response) {
+            for (street of response) {
                 table.innerHTML = table.innerHTML + buildListElement(street.id, street.street, street.children.length);
             }
 
@@ -142,7 +172,7 @@ function getStreetListFromApi() {
 }
 
 function buildListElement(streetId, street, childElements) {
-        return `<li class='list-group-item d-flex justify-content-between align-items-center list-group-item-dark'>
+    return `<li class='list-group-item d-flex justify-content-between align-items-center list-group-item-dark'>
             Id=${streetId}: ${street}
             <span class='badge text-bg-primary rounded-pill'>${childElements}</span>
         </li>`;
