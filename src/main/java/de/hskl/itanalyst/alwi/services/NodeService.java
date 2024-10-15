@@ -2,18 +2,20 @@ package de.hskl.itanalyst.alwi.services;
 
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.entities.Node;
+import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.repositories.INodeRepository;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class NodeService {
 
@@ -40,8 +42,13 @@ public class NodeService {
     }
 
     @Cacheable(cacheNames = "nodes", sync=true)
-    public Optional<NodeDTO> findNodeById(Long id) {
+    public Optional<NodeDTO> findNodeById(Long id) throws NodeNotFoundException {
         Optional<Node> node = nodeRepository.findById(id);
+        if (node.isEmpty()) {
+            String errMsg = String.format("No match for node with id: %s.", id);
+            log.error(errMsg);
+            throw new NodeNotFoundException(errMsg);
+        }
         return node.map(this::convertToNodeDto);
     }
 

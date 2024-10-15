@@ -1,3 +1,5 @@
+let globalAddress = "http://localhost:8081";
+
 function getFormData() {
     let startInputForm = document.getElementById("input-start").value;
     let targetInputForm = document.getElementById("input-ziel").value;
@@ -46,12 +48,16 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
 
         } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
             console.log("API nicht erreichbar...");
+        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 500) {
+            // Bad Request → Errorhandling von Backend
+            let err = JSON.parse(xmlhttp.responseText);
+            console.log(err);
         } else {
             // Cleanup on ERROR
         }
     }
 
-    let url = `http://localhost:8081/pathfinding?stStr=${start}&stNo=${startNo}&tgStr=${target}&tgNo=${targetNo}`;
+    let url = `${globalAddress}/pathfinding?stStr=${start}&stNo=${startNo}&tgStr=${target}&tgNo=${targetNo}`;
 
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
@@ -104,4 +110,40 @@ function parseAddress(address) {
         street,
         houseNumber
     };
+}
+
+function getStreetListFromApi() {
+    let xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            let response = JSON.parse(xmlhttp.responseText);;
+
+            let table = document.getElementById("streetList");
+            for(street of response) {
+                table.innerHTML = table.innerHTML + buildListElement(street.id, street.street, street.children.length);
+            }
+
+        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
+            console.log("API nicht erreichbar...");
+        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 500) {
+            // Bad Request → Errorhandling von Backend
+            let err = JSON.parse(xmlhttp.responseText);
+            console.log(err);
+        } else {
+            // Cleanup on ERROR
+        }
+    }
+
+    let url = `${globalAddress}/streets/list`;
+
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function buildListElement(streetId, street, childElements) {
+        return `<li class='list-group-item d-flex justify-content-between align-items-center list-group-item-dark'>
+            Id=${streetId}: ${street}
+            <span class='badge text-bg-primary rounded-pill'>${childElements}</span>
+        </li>`;
 }

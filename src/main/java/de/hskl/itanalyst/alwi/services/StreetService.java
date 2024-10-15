@@ -2,6 +2,7 @@ package de.hskl.itanalyst.alwi.services;
 
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.entities.Street;
+import de.hskl.itanalyst.alwi.exceptions.StreetNotFoundException;
 import de.hskl.itanalyst.alwi.repositories.IStreetRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -11,9 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 
 @Slf4j
 @Service
@@ -43,15 +43,31 @@ public class StreetService {
         return updateStreetRelations(streetDTOs);
     }
 
+    @Cacheable(value = "streets", sync = true)
+    public List<StreetDTO> findListOfAllStreets() {
+        List<StreetDTO> streetDTOs = findAllStreets();
+        return streetDTOs.stream().filter(st -> !st.getIsBuilding()).toList();
+    }
+
     @Cacheable(value = "streets", key = "#id", sync = true)
-    public Optional<StreetDTO> findStreetById(Long id) {
+    public Optional<StreetDTO> findStreetById(Long id) throws StreetNotFoundException {
         Optional<Street> street = streetRepository.findById(id);
+        if (street.isEmpty()) {
+            String errMsg = String.format("No match for street wit id: %s.", id);
+            log.error(errMsg);
+            throw new StreetNotFoundException(errMsg);
+        }
         return street.map(this::convertToStreetDto);
     }
 
     @Cacheable(value = "streets", key = "#name", sync = true)
-    public List<StreetDTO> findByStreet(String name) {
+    public List<StreetDTO> findByStreet(String name) throws StreetNotFoundException {
         List<Street> streets = streetRepository.findByStreet(name);
+        if (streets.isEmpty()) {
+            String errMsg = String.format("No match for street: %s.", name);
+            log.error(errMsg);
+            throw new StreetNotFoundException(errMsg);
+        }
         return streets.stream().map(this::convertToStreetDto).toList();
     }
 
@@ -66,7 +82,7 @@ public class StreetService {
     private List<StreetDTO> updateStreetRelations(List<StreetDTO> streets) {
         List<StreetDTO> streetDTOs = new ArrayList<>();
         for (StreetDTO streetDTO : streets) {
-            if(streetDTO.getIsBuilding()) {
+            if (streetDTO.getIsBuilding()) {
                 StreetDTO parent = streetDTOs.stream().filter(st -> st.getStreet().equals(streetDTO.getStreet()) && !st.getIsBuilding()).findFirst().get();
                 streetDTO.setParent(parent);
                 streetDTO.setChildren(null);

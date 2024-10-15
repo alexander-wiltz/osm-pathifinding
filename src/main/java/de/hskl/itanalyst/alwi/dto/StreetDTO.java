@@ -21,8 +21,10 @@ public class StreetDTO implements Serializable {
     @NonNull
     private Boolean isBuilding;
 
+    @JsonBackReference
     private StreetDTO parent;
 
+    @JsonManagedReference
     private Collection<StreetDTO> children;
 
     @NonNull

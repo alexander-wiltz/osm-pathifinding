@@ -40,7 +40,7 @@ public class ObjectHandlerService {
 
         // Add all the divided ways without the buildings
         for (WayDTO wayDTO : justWays) {
-            if (wayAlreadyExists(wayDTO, streets)) {
+            if (wayAlreadyExists(wayDTO, streets) || !validateWayObjectAsStreet(wayDTO)) {
                 continue;
             }
             StreetDTO streetDTO = new StreetDTO();
@@ -302,6 +302,13 @@ public class ObjectHandlerService {
             }
         }
         return false;
+    }
+
+    private boolean validateWayObjectAsStreet(WayDTO wayDTO) {
+        return wayDTO.getHighway() != null && wayDTO.getName() != null
+                && (wayDTO.getHighway().equalsIgnoreCase("footway")
+                || wayDTO.getHighway().equalsIgnoreCase("living_street")
+                || wayDTO.getHighway().equalsIgnoreCase("residential"));
     }
 
     //endregion

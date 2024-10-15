@@ -3,34 +3,32 @@ package de.hskl.itanalyst.alwi;
 import de.hskl.itanalyst.alwi.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.*;
 
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(WayNotComputableException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<String> handleNotComputable(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiError> handleNotComputable(WayNotComputableException ex) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Try other addresses." , ex.getMessage());
+        return ResponseEntity.status(apiError.getStatus()).body(apiError);
     }
 
     @ExceptionHandler(WayNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleWayNotFound(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiError> handleWayNotFound(WayNotFoundException ex) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "Use a known way." , ex.getMessage());
+        return ResponseEntity.status(apiError.getStatus()).body(apiError);
     }
 
     @ExceptionHandler(NodeNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleNodeNotFound(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiError> handleNodeNotFound(NodeNotFoundException ex) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "Use a known node." , ex.getMessage());
+        return ResponseEntity.status(apiError.getStatus()).body(apiError);
     }
 
     @ExceptionHandler(StreetNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<String> handleStreetNotFound(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiError> handleStreetNotFound(StreetNotFoundException ex) {
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "Use a known street." , ex.getMessage());
+        return ResponseEntity.status(apiError.getStatus()).body(apiError);
     }
 }

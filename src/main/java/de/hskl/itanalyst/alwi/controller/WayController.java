@@ -1,6 +1,7 @@
 package de.hskl.itanalyst.alwi.controller;
 
 import de.hskl.itanalyst.alwi.dto.WayDTO;
+import de.hskl.itanalyst.alwi.exceptions.WayNotFoundException;
 import de.hskl.itanalyst.alwi.services.WayService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,7 +35,7 @@ public class WayController {
     @Operation(summary = "Get way by id from database.")
     @ApiResponse(responseCode = "200", description = "Way found.")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<WayDTO> getWayById(@PathVariable Long id) {
+    public ResponseEntity<WayDTO> getWayById(@PathVariable Long id) throws WayNotFoundException {
         Optional<WayDTO> wayDTO = wayService.findWayById(id);
         return wayDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }

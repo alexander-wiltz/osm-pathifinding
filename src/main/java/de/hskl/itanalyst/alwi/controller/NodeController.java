@@ -1,6 +1,7 @@
 package de.hskl.itanalyst.alwi.controller;
 
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
+import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import de.hskl.itanalyst.alwi.services.NodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,7 +35,7 @@ public class NodeController {
     @Operation(summary = "Get node by id from database.")
     @ApiResponse(responseCode = "200", description = "Node found.")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NodeDTO> getNodeById(@PathVariable Long id) {
+    public ResponseEntity<NodeDTO> getNodeById(@PathVariable Long id) throws NodeNotFoundException {
         Optional<NodeDTO> nodeDTO = nodeService.findNodeById(id);
         return nodeDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
