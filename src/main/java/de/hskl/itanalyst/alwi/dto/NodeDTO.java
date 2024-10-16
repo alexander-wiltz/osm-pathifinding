@@ -10,7 +10,6 @@ import java.util.Set;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @RequiredArgsConstructor
 public class NodeDTO implements Serializable, INode {
@@ -27,5 +26,10 @@ public class NodeDTO implements Serializable, INode {
     @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return "NodeDTO{id=" + id + '}';
     }
 }

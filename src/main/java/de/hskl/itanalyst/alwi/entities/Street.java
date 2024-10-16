@@ -10,7 +10,7 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "streets", indexes = {
-        @Index(name = "street_houseNumber_idx",  columnList="street,houseNumber")
+        @Index(name = "name_houseNumber_idx",  columnList="name,houseNumber")
 })
 public class Street implements Serializable {
 
@@ -21,8 +21,8 @@ public class Street implements Serializable {
     @Column(name = "isBuilding")
     private Boolean isBuilding;
 
-    @Column(name = "street")
-    private String street;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "houseNumber")
     private String houseNumber;

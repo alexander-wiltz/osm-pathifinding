@@ -24,22 +24,6 @@ public class AStar {
     public Graph<NodeDTO> prepareGraph(List<StreetDTO> streets) {
         Map<Long, Set<Long>> connections = new HashMap<>();
         Set<NodeDTO> nodes = buildNodeContainer(streets);
-        /*
-         TODO: Street Stack
-         Wenn für jede Straße, deren Nodes bereits in den Connections sind, das Street-Objekt aus einem
-         Stack abgeräumt werden würde, so würde dieses Street-Objekt bei den Folgeiterationen nicht mehr
-         durchlaufen werden. Die Iterationsdauer sollte theoretisch logarithmisch abnehmen.
-
-         Ansatz:
-         1. Street-Objekt legt für jede Node eine Map an, deren Set leer ist.
-         2. Zu der ersten Node müssten alle Nodes des Street-Objekts hinzugefügt werden.
-         3. Für alle anderen, jeweils auch.
-         4. Das Street-Objekt kann raus.
-         5. Das nächste getroffene Objekt, bekommt ebenfalls alle Nodes hinzugefügt.
-         6. Für alle weiteren wird angelegt, sofern nicht vorhanden, und gefüllt.
-         7. Die bestehenden geprüft, ob es gemeinsame gibt und auch diese eingefügt.
-         zu 4.
-         */
 
         for (NodeDTO node : nodes) {
             Set<Long> nodeIds = new HashSet<>();
@@ -59,7 +43,7 @@ public class AStar {
                             nodeIds.addAll(child.getNodes().stream().map(NodeDTO::getId).toList());
                         }
 
-                        log.trace("Added {} elements for House={} {}", nodeIds.size(), street.getStreet(), street.getHouseNumber());
+                        log.trace("Added {} elements for House={} {}", nodeIds.size(), street.getName(), street.getHouseNumber());
                     }
                 }
                 // endregion
@@ -74,7 +58,7 @@ public class AStar {
                         for (StreetDTO child : street.getChildren()) {
                             nodeIds.addAll(child.getNodes().stream().map(NodeDTO::getId).toList());
                         }
-                        log.trace("Added {} elements for Street={}", nodeIds.size(), street.getStreet());
+                        log.trace("Added {} elements for Street={}", nodeIds.size(), street.getName());
                     }
                 }
                 // endregion

@@ -10,7 +10,6 @@ import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
 import de.hskl.itanalyst.alwi.geomodel.GeoJsonObject;
 import de.hskl.itanalyst.alwi.services.GeoJsonService;
 import de.hskl.itanalyst.alwi.services.StreetService;
-import de.hskl.itanalyst.alwi.utilities.StringUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,9 +37,6 @@ public class PathfindingController {
     @Autowired
     private StreetService streetService;
 
-//    @Autowired
-//    private StringUtils stringUtils;
-
     @Operation(summary = "Compute way and respond with GeoJson-Object.")
     @ApiResponse(responseCode = "200", description = "GeoJson Object successfully created.")
     @ApiResponse(responseCode = "404", description = "Way not computable.")
@@ -51,16 +47,12 @@ public class PathfindingController {
             @RequestParam(name = "tgStr") String targetStreet,
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
-        // Capitalize given address
-//        final String capitalizedStartStreet = stringUtils.capitalizeStringFromUI(startStreet);
-//        final String capitalizedTargetStreet = stringUtils.capitalizeStringFromUI(targetStreet);
-
         // streets and graph will be initialized and stored in cache
         List<StreetDTO> streets = streetService.findAllStreets();
 
         // look up for streets from interface
-        List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(startStreet)).toList();
-        List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getStreet().equals(targetStreet)).toList();
+        List<StreetDTO> startStreets = streets.stream().filter(st -> st.getName().equals(startStreet)).toList();
+        List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getName().equals(targetStreet)).toList();
 
         if (startStreets.isEmpty()) {
             String errMsg = String.format("No match for start street with name: %s.", startStreet);

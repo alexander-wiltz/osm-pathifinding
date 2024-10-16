@@ -53,7 +53,7 @@ public class GlobalCache {
     }
 
     public List<StreetDTO> findStreetByName(String streetName) throws StreetNotFoundException {
-        List<StreetDTO> streets = globalStreetDTOs.stream().filter(s -> s.getStreet().equals(streetName)).toList();
+        List<StreetDTO> streets = globalStreetDTOs.stream().filter(s -> s.getName().equals(streetName)).toList();
         if (streets.isEmpty()) {
             String errMsg = String.format("Street %s not found.", streetName);
             log.error(errMsg);

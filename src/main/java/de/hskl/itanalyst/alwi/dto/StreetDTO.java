@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
@@ -28,7 +27,7 @@ public class StreetDTO implements Serializable {
     private Collection<StreetDTO> children;
 
     @NonNull
-    private String street;
+    private String name;
     private String houseNumber;
 
     @JsonManagedReference

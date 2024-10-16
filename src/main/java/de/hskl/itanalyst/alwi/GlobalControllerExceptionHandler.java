@@ -10,7 +10,7 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(WayNotComputableException.class)
     public ResponseEntity<ApiError> handleNotComputable(WayNotComputableException ex) {
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, "Try other addresses." , ex.getMessage());
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, "Try other addresses." , ex.getMessage());
         return ResponseEntity.status(apiError.getStatus()).body(apiError);
     }
 

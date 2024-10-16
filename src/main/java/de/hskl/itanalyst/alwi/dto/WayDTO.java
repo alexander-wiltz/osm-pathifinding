@@ -1,9 +1,6 @@
 package de.hskl.itanalyst.alwi.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -32,4 +29,10 @@ public class WayDTO implements Serializable {
     private String denomination;
     private Long refNode;
     private Set<NodeDTO> nodes;
+
+    @Override
+    public String toString() {
+        return "WayDTO{" +
+                "id=" + id + ", name='" + name + '\'' + ", street='" + street + '\'' +  ", highway='" + highway + "'}";
+    }
 }
