@@ -215,7 +215,7 @@ public class ObjectHandlerService {
             wayDTO.setDenomination(getValueOfTagXmlByKey(tagXmls, "denomination"));
 
             String building = getValueOfTagXmlByKey(tagXmls, "building");
-            if ((building != null) && building.equals("yes") && (wayDTO.getStreet() != null) && (wayDTO.getHousenumber() != null)) {
+            if ((building != null) && (building.equals("yes") || building.equals("house")) && (wayDTO.getStreet() != null) && (wayDTO.getHousenumber() != null)) {
                 wayDTO.setIsBuilding(true);
                 wayDTO.setIsGarage(false);
             } else if (building != null && building.equals("garages")) {
