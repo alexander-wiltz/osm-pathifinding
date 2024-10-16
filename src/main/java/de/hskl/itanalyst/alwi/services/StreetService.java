@@ -46,7 +46,7 @@ public class StreetService {
     @Cacheable(value = "streets", sync = true)
     public List<StreetDTO> findListOfAllStreets() {
         List<StreetDTO> streetDTOs = findAllStreets();
-        return streetDTOs.stream().filter(st -> !st.getIsBuilding() && (st.getChildren() != null || !st.getChildren().isEmpty())).toList();
+        return streetDTOs.stream().filter(st -> !st.getIsBuilding()).filter(st -> !st.getChildren().isEmpty()).toList();
     }
 
     @Cacheable(value = "streets", sync = true)
