@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface IStreetRepository extends JpaRepository<Street, Long> {
-    List<Street> findByStreet(String name);
+    List<Street> findByStreetIgnoreCase(String name);
 }
