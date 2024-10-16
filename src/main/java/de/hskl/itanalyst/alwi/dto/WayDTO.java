@@ -29,10 +29,4 @@ public class WayDTO implements Serializable {
     private String denomination;
     private Long refNode;
     private Set<NodeDTO> nodes;
-
-    @Override
-    public String toString() {
-        return "WayDTO{" +
-                "id=" + id + ", name='" + name + '\'' + ", street='" + street + '\'' +  ", highway='" + highway + "'}";
-    }
 }
