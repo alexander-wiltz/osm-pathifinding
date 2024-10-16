@@ -196,7 +196,7 @@ function buildListElement(streetId, name, childElements) {
 }
 
 function buildTableElement(count, street) {
-    return `<tr><td>${count}</td><td>${street.id}</td><td>${street.name}</td><td>${street.houseNumber}</td><td>${street.isBuilding}</td></td></tr>`;
+    return `<tr><td>${count}</td><td>${street.id}</td><td>${street.name}</td><td>${street.houseNumber}</td></td></tr>`;
 }
 
 function printErrorOnUI(message) {
