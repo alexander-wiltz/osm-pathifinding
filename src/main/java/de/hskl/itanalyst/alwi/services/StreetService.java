@@ -62,7 +62,7 @@ public class StreetService {
 
     @Cacheable(value = "streets", key = "#name", sync = true)
     public List<StreetDTO> findByStreet(String name) throws StreetNotFoundException {
-        List<Street> streets = streetRepository.findByStreet(name);
+        List<Street> streets = streetRepository.findByStreetIgnoreCase(name);
         if (streets.isEmpty()) {
             String errMsg = String.format("No match for street: %s.", name);
             log.error(errMsg);

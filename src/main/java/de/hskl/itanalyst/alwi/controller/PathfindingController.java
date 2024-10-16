@@ -38,8 +38,8 @@ public class PathfindingController {
     @Autowired
     private StreetService streetService;
 
-    @Autowired
-    private StringUtils stringUtils;
+//    @Autowired
+//    private StringUtils stringUtils;
 
     @Operation(summary = "Compute way and respond with GeoJson-Object.")
     @ApiResponse(responseCode = "200", description = "GeoJson Object successfully created.")
@@ -52,23 +52,23 @@ public class PathfindingController {
             @RequestParam(name = "tgNo") String targetNumber) throws StreetNotFoundException, NodeNotFoundException, WayNotComputableException {
 
         // Capitalize given address
-        final String capitalizedStartStreet = stringUtils.capitalizeStringFromUI(startStreet);
-        final String capitalizedTargetStreet = stringUtils.capitalizeStringFromUI(targetStreet);
+//        final String capitalizedStartStreet = stringUtils.capitalizeStringFromUI(startStreet);
+//        final String capitalizedTargetStreet = stringUtils.capitalizeStringFromUI(targetStreet);
 
         // streets and graph will be initialized and stored in cache
         List<StreetDTO> streets = streetService.findAllStreets();
 
         // look up for streets from interface
-        List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(capitalizedStartStreet)).toList();
-        List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getStreet().equals(capitalizedTargetStreet)).toList();
+        List<StreetDTO> startStreets = streets.stream().filter(st -> st.getStreet().equals(startStreet)).toList();
+        List<StreetDTO> targetStreets = streets.stream().filter(st -> st.getStreet().equals(targetStreet)).toList();
 
         if (startStreets.isEmpty()) {
-            String errMsg = String.format("No match for start street with name: %s.", capitalizedStartStreet);
+            String errMsg = String.format("No match for start street with name: %s.", startStreet);
             log.error(errMsg);
             throw new StreetNotFoundException(errMsg);
         }
         if (targetStreets.isEmpty()) {
-            String errMsg = String.format("No match for target street with name: %s.", capitalizedTargetStreet);
+            String errMsg = String.format("No match for target street with name: %s.", targetStreet);
             log.error(errMsg);
             throw new StreetNotFoundException(errMsg);
         }
