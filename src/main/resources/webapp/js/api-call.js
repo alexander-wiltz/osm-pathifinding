@@ -1,23 +1,25 @@
 let globalAddress = "http://localhost:8081";
 let geoLayer;
+const toastLive = document.getElementById('liveToast');
+const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
 
 function getFormData() {
     let startInputForm = document.getElementById("input-start").value;
     let targetInputForm = document.getElementById("input-ziel").value;
 
     //let type = document.querySelector('input[name="check-radio"]:checked').value;
-
     let start = parseAddress(startInputForm);
     let target = parseAddress(targetInputForm);
 
     if (start.error) {
         console.error("Fehler beim Parsing der Adresse:", start.error);
-        alert(`Die eingegebene Adresse ist ungültig: ${start.error}`);
+        printErrorOnUI(start.error);
     } else if (target.error) {
         console.error("Fehler beim Parsing der Adresse:", target.error);
-        alert(`Die eingegebene Adresse ist ungültig: ${target.error}`);
+        printErrorOnUI(target.error);
     } else {
-        getComputedWayFromApi(start.street, start.houseNumber, target.street, target.houseNumber);
+        clearErrorAfterValidResponse();
+        getComputedWayFromApi(start.name, start.houseNumber, target.name, target.houseNumber);
     }
 
 }
@@ -28,7 +30,6 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             let way = JSON.parse(xmlhttp.responseText);
             let geoObj = way.features;
-
             geoLayer = L.geoJSON(geoObj, {
                 style: function (feature) {
                     switch (feature.properties.name) {
@@ -41,23 +42,19 @@ function getComputedWayFromApi(start, startNo, target, targetNo) {
                     }
                 }
             }).addTo(map);
-
             computeHeuristic(geoObj, start, startNo, target, targetNo);
-
         } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
-            console.log("API nicht erreichbar...");
+            printErrorOnUI("API nicht erreichbar...");
         } else if (xmlhttp.readyState === 4 && (xmlhttp.status === 404 || xmlhttp.status === 500)) {
             // Not Found or Bad Request → Errorhandling von Backend
             let err = JSON.parse(xmlhttp.responseText);
-            console.log(err);
-            console.log("Msg: " + err.error);
+            printErrorOnUI(err.error);
         } else {
-
+            // Cleanup on error
         }
     }
 
     let url = `${globalAddress}/pathfinding?stStr=${start}&stNo=${startNo}&tgStr=${target}&tgNo=${targetNo}`;
-
     xmlhttp.open("GET", url, true);
     xmlhttp.send();
 }
@@ -109,60 +106,53 @@ function findCenter(...markers) {
     lat /= markers.length;
     lng /= markers.length;
 
-    return {lat: lat, lng: lng}
+    return {
+        lat: lat,
+        lng: lng
+    }
 }
 
 function setAutomaticZoom(length) {
     if (length < 500) {
         return 18;
-    } else if (1000 > length && length > 500) {
+    } else if (1600 > length && length > 500) {
         return 16;
-    } else if (1500 > length && length > 1000) {
-        return 14;
     } else {
-        return 10;
+        return 12;
     }
 }
 
 function parseAddress(address) {
-    // Regulärer Ausdruck zum Parsen der Adresse (Straße und Hausnummer)
     // Formatbeispiele: "Musterstraße 123", "Musterstraße 123A", "Musterstraße 12B"
     const regex = /^(.+?)\s+(\d+[a-zA-Z]?)$/;
     const match = address.trim().match(regex);
 
     if (!match) {
         return {
-            error: "Ungültige Adresse. Bitte im Format 'Straßenname Hausnummer' eingeben."
+            error: "Invalid address. Please use format 'street number'."
         };
     }
 
-    const street = match[1].trim();
+    const name = match[1].trim();
     const houseNumber = match[2].trim();
 
     return {
-        street,
+        name,
         houseNumber
     };
 }
 
 function getStreetListFromApi() {
     let xmlhttp = new XMLHttpRequest();
-
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
             let response = JSON.parse(xmlhttp.responseText);
-
             let table = document.getElementById("streetList");
-            for (street of response) {
-                table.innerHTML = table.innerHTML + buildListElement(street.id, street.street, street.children.length);
+            for (let street of response) {
+                table.innerHTML = table.innerHTML + buildListElement(street.id, street.name, street.children.length);
             }
-
         } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
             console.log("API nicht erreichbar...");
-        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 500) {
-            // Bad Request → Errorhandling von Backend
-            let err = JSON.parse(xmlhttp.responseText);
-            console.log(err);
         } else {
             // Cleanup on ERROR
         }
@@ -174,9 +164,59 @@ function getStreetListFromApi() {
     xmlhttp.send();
 }
 
-function buildListElement(streetId, street, childElements) {
+function getAllBuildingsFromApi() {
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+            let response = JSON.parse(xmlhttp.responseText);
+            let table = document.getElementById("table-body");
+            let count = 1;
+            for (let street of response) {
+                table.innerHTML = table.innerHTML + buildTableElement(count, street);
+                count++;
+            }
+        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
+            console.log("API nicht erreichbar...");
+        } else {
+            // Cleanup on ERROR
+        }
+    }
+
+    let url = `${globalAddress}/streets/objects`;
+
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+}
+
+function buildListElement(streetId, name, childElements) {
     return `<li class='list-group-item d-flex justify-content-between align-items-center list-group-item-dark'>
-            Id=${streetId}: ${street}
+            Id=${streetId}: ${name}
             <span class='badge text-bg-primary rounded-pill'>${childElements}</span>
         </li>`;
+}
+
+function buildTableElement(count, street) {
+    return `<tr><td>${count}</td><td>${street.id}</td><td>${street.name}</td><td>${street.houseNumber}</td><td>${street.isBuilding}</td></td></tr>`;
+}
+
+function printErrorOnUI(message) {
+    let errorField = document.getElementById("errorMsg");
+    errorField.innerHTML = message;
+    errorField.setAttribute("class", "alert alert-danger text-alert");
+    errorField.setAttribute("style", "visibility: visible");
+    console.log("Err: " + message);
+
+    let errorToastElement = document.getElementById("errorMsgToast");
+    errorToastElement.innerHTML = message;
+    toastBootstrap.show();
+}
+
+function clearErrorAfterValidResponse() {
+    let errorField = document.getElementById("errorMsg");
+    errorField.innerHTML = "";
+    errorField.setAttribute("class", "");
+    errorField.setAttribute("style", "visibility: hidden");
+
+    let errorToastElement = document.getElementById("errorMsgToast");
+    errorToastElement.innerHTML = "";
 }

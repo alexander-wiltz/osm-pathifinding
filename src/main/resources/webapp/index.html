@@ -25,7 +25,7 @@
                     <label for="input-ziel" class="form-label">Zieladresse: </label>
                     <input type="text" class="form-control" id="input-ziel" placeholder="Zieladresse">
                 </div>
-                <div class="mb-4">
+                <div class="mb-2">
                     <div class="row text-center p-1">
                         <div class="col-md-2 p-1 invisible">
                             <label class="form-check-label" for="check-car"><i
@@ -49,6 +49,11 @@
                         </div>
                     </div>
                 </div>
+                <div class="mb-2">
+                    <div class="row text-center p-1">
+                        <span id="errorMsg"></span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="col-lg-4"></div>
@@ -63,14 +68,12 @@
     </div>
     <hr>
     <div class="text-center">
-        <a href="./streetlist.html" target="_self">Straßenverzeichnis</a> | Statistiken | Admin |
-        <button type="button" class="btn btn-primary" id="liveToastBtn">Show live toast</button>
+        <a href="./streetlist.html" target="_self">Straßenverzeichnis</a> | Statistiken | <a href="./admin.html" target="_self">Admin</a>
     </div>
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-body bg-primary">
-                Hello, world! This is a toast message. <br/>
-                Here can be your error!
+            <div class="toast-body bg-danger">
+                <span id="errorMsgToast"></span>
                 <div class="mt-2 pt-2 border-top text-right">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">Close</button>
                 </div>
@@ -83,5 +86,4 @@
 <script src="js/leaflet-config.js"></script>
 <script src="./js/bootstrap.min.js"></script>
 <script src="./js/api-call.js"></script>
-<script src="./js/script.js"></script>
 </html>
