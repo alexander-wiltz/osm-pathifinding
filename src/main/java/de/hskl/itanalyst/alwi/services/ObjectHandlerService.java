@@ -31,22 +31,26 @@ public class ObjectHandlerService {
         // Divide by way and building
         for (WayDTO way : ways) {
             if (way.getIsBuilding() != null && way.getIsGarage() != null && way.getName() != null
-                    && !way.getIsBuilding() && !way.getIsGarage() && !way.getName().isEmpty()) {
+                    && !way.getIsBuilding() && !way.getIsGarage() && !way.getName().isEmpty()
+                    && !way.getName().equalsIgnoreCase("yes")) {
                 justWays.add(way);
             } else if (way.getIsBuilding() != null && way.getIsBuilding()) {
                 justBuildings.add(way);
             }
         }
 
-        // Add all the divided ways without the buildings
+        // Add all the divided ways without the buildings, just streets
         for (WayDTO wayDTO : justWays) {
             if (wayAlreadyExists(wayDTO, streets) || !validateWayObjectAsStreet(wayDTO)) {
+                continue;
+            }
+            if (findExistingStreets(wayDTO, streets)) {
                 continue;
             }
             StreetDTO streetDTO = new StreetDTO();
             streetDTO.setId(wayDTO.getId());
             streetDTO.setIsBuilding(wayDTO.getIsBuilding());
-            streetDTO.setStreet(wayDTO.getName());
+            streetDTO.setName(wayDTO.getName());
             streetDTO.setChildren(new ArrayList<>());
             streetDTO.setNodes(wayDTO.getNodes());
 
@@ -56,6 +60,7 @@ public class ObjectHandlerService {
             log.debug("Built {} streets.", streets.size());
         }
 
+        // do the same magic with the buildings nor the streets
         for (WayDTO buildingFromWayObject : justBuildings) {
             if (wayAlreadyExists(buildingFromWayObject, streets)) {
                 continue;
@@ -82,7 +87,7 @@ public class ObjectHandlerService {
                 continue;
             }
 
-            Optional<StreetDTO> optionalStreetObject = streets.stream().filter(street -> !street.getIsBuilding() && street.getStreet().equals(buildingFromWayObject.getStreet())).findFirst();
+            Optional<StreetDTO> optionalStreetObject = streets.stream().filter(street -> !street.getIsBuilding() && street.getName().equals(buildingFromWayObject.getStreet())).findFirst();
             if (optionalStreetObject.isPresent()) {
                 StreetDTO building = getStreetDTO(buildingFromWayObject, optionalStreetObject.get());
                 building.getNodes().add(node);
@@ -104,7 +109,7 @@ public class ObjectHandlerService {
         building.setId(buildingFromWayObject.getId());
         building.setIsBuilding(buildingFromWayObject.getIsBuilding());
         building.setParent(parentStreet);
-        building.setStreet(buildingFromWayObject.getStreet());
+        building.setName(buildingFromWayObject.getStreet());
         building.setHouseNumber(buildingFromWayObject.getHousenumber());
         building.setNodes(new HashSet<>(1));
 
@@ -284,10 +289,41 @@ public class ObjectHandlerService {
         return null;
     }
 
+    /**
+     * Check if way already exists in streets (duplicated object validation).
+     * In case a way-object (street) is split in parts, then handler has to merge the object to a single street
+     * Therefore the 'new' general way-object has to carry all nodes from all parts and has to carry all child-objects (buildings)
+     *
+     * @param wayDTO     way
+     * @param streetDTOs streets
+     * @return true if exists
+     */
     private boolean wayAlreadyExists(WayDTO wayDTO, List<StreetDTO> streetDTOs) {
         for (StreetDTO streetDTO : streetDTOs) {
             if (streetDTO.getId().equals(wayDTO.getId())) {
-                log.info("Duplicated Way: Way-Object already exists. Way={}", wayDTO.getId());
+                if (log.isDebugEnabled()) {
+                    log.debug("Duplicated Way: Way-Object already exists. Way={}", wayDTO.getId());
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validate if a street with given name already exists as parent object. If yes, take nodes from way-object and add to known street.
+     *
+     * @param wayDTO     way
+     * @param streetDTOs streets
+     * @return true, if exists and added
+     */
+    private boolean findExistingStreets(WayDTO wayDTO, List<StreetDTO> streetDTOs) {
+        for (StreetDTO streetDTO : streetDTOs) {
+            if (streetDTO.getName().equalsIgnoreCase(wayDTO.getName())) {
+                streetDTO.getNodes().addAll(wayDTO.getNodes());
+                if (log.isDebugEnabled()) {
+                    log.debug("Street is already known: {}.", wayDTO.getName());
+                }
                 return true;
             }
         }
@@ -297,18 +333,38 @@ public class ObjectHandlerService {
     private boolean nodeAlreadyExists(Long nodeId, List<NodeDTO> nodeDTOs) {
         for (NodeDTO nodeDTO : nodeDTOs) {
             if (nodeDTO.getId().equals(nodeId)) {
-                log.info("Duplicated Node: Node-Object already exists. NodeId={}", nodeId);
+                if (log.isDebugEnabled()) {
+                    log.debug("Duplicated Node: Node-Object already exists. NodeId={}", nodeId);
+                }
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Proof that way-object is a street, has a name and is typed as footway, living_street or residential
+     * <a href="https://wiki.openstreetmap.org/wiki/Key:highway">Highway types</a>
+     *
+     * @param wayDTO street
+     * @return true, if is street
+     */
     private boolean validateWayObjectAsStreet(WayDTO wayDTO) {
-        return wayDTO.getHighway() != null && wayDTO.getName() != null
-                && (wayDTO.getHighway().equalsIgnoreCase("footway")
-                || wayDTO.getHighway().equalsIgnoreCase("living_street")
-                || wayDTO.getHighway().equalsIgnoreCase("residential"));
+        String[] allowedWaysJustForCars = new String[]{"motorway", "motorway_link"};
+        String[] allowedWaysForOthers = new String[]{"living_street", "service", "pedestrian", "track", "road", "trunk", "primary", "secondary", "tertiary", "unclassified", "residential", "trunk_link", "primary_link", "secondary_link", "tertiary_link", "footway", "bridleway", "steps", "path", "sidewalk", "crossing", "cycleway",};
+        if (wayDTO.getHighway() == null || wayDTO.getName() == null) {
+            log.debug("Way-Object turned out. Highway or Name are NULL. Way={}", wayDTO);
+            return false;
+        }
+
+        for (String allowedWay : allowedWaysForOthers) {
+            if (wayDTO.getHighway().equalsIgnoreCase(allowedWay)) {
+                return true;
+            }
+        }
+
+        log.debug("Way-Object turned out. Way={}", wayDTO);
+        return false;
     }
 
     //endregion
