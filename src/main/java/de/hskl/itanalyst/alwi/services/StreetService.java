@@ -46,14 +46,20 @@ public class StreetService {
     @Cacheable(value = "streets", sync = true)
     public List<StreetDTO> findListOfAllStreets() {
         List<StreetDTO> streetDTOs = findAllStreets();
-        return streetDTOs.stream().filter(st -> !st.getIsBuilding()).toList();
+        return streetDTOs.stream().filter(st -> !st.getIsBuilding() && (st.getChildren() != null || !st.getChildren().isEmpty())).toList();
+    }
+
+    @Cacheable(value = "streets", sync = true)
+    public List<StreetDTO> findListOfAllObjects() {
+        List<StreetDTO> streetDTOs = findAllStreets();
+        return streetDTOs.stream().filter(StreetDTO::getIsBuilding).toList();
     }
 
     @Cacheable(value = "streets", key = "#id", sync = true)
     public Optional<StreetDTO> findStreetById(Long id) throws StreetNotFoundException {
         Optional<Street> street = streetRepository.findById(id);
         if (street.isEmpty()) {
-            String errMsg = String.format("No match for street wit id: %s.", id);
+            String errMsg = String.format("No match for street with id: %s.", id);
             log.error(errMsg);
             throw new StreetNotFoundException(errMsg);
         }
@@ -62,7 +68,7 @@ public class StreetService {
 
     @Cacheable(value = "streets", key = "#name", sync = true)
     public List<StreetDTO> findByStreet(String name) throws StreetNotFoundException {
-        List<Street> streets = streetRepository.findByStreetIgnoreCase(name);
+        List<Street> streets = streetRepository.findByNameIgnoreCase(name);
         if (streets.isEmpty()) {
             String errMsg = String.format("No match for street: %s.", name);
             log.error(errMsg);
@@ -83,7 +89,7 @@ public class StreetService {
         List<StreetDTO> streetDTOs = new ArrayList<>();
         for (StreetDTO streetDTO : streets) {
             if (streetDTO.getIsBuilding()) {
-                StreetDTO parent = streetDTOs.stream().filter(st -> st.getStreet().equals(streetDTO.getStreet()) && !st.getIsBuilding()).findFirst().get();
+                StreetDTO parent = streetDTOs.stream().filter(st -> st.getName().equals(streetDTO.getName()) && !st.getIsBuilding()).findFirst().get();
                 streetDTO.setParent(parent);
                 streetDTO.setChildren(null);
                 streetDTO.getParent().getChildren().add(streetDTO);

@@ -11,11 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Slf4j
 @RestController
@@ -40,6 +37,14 @@ public class StreetController {
     @GetMapping(value = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<StreetDTO>> getListOfAllStreets() {
         List<StreetDTO> streetDTOs = streetService.findListOfAllStreets();
+        return ResponseEntity.ok().body(streetDTOs);
+    }
+
+    @Operation(summary = "Get a list of buildings from database.")
+    @ApiResponse(responseCode = "200", description = "Found buildings.")
+    @GetMapping(value = "/objects", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<StreetDTO>> getListOfAllObjects() {
+        List<StreetDTO> streetDTOs = streetService.findListOfAllObjects();
         return ResponseEntity.ok().body(streetDTOs);
     }
 
