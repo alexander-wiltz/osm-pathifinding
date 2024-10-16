@@ -94,6 +94,7 @@ function computeHeuristic(geoObj, startStr, startNo, targetStr, targetNo) {
     map.setView([midPoint.lng, midPoint.lat], zoom);
 
     console.log(`Luftlinie ${heuristic}m von ${startStr} ${startNo} nach ${targetStr} ${targetNo}`);
+    console.log(`Set zoom ${zoom}`);
 }
 
 function findCenter(...markers) {
@@ -112,12 +113,14 @@ function findCenter(...markers) {
 }
 
 function setAutomaticZoom(length) {
-    if(length < 500) {
+    if (length < 500) {
         return 18;
-    } else if (1000 < length > 500) {
+    } else if (1000 > length && length > 500) {
         return 16;
+    } else if (1500 > length && length > 1000) {
+        return 14;
     } else {
-        return 15;
+        return 10;
     }
 }
 
