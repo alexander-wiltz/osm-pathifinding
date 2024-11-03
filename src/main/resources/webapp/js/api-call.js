@@ -31,7 +31,7 @@ async function fetchGeoJsonData(start, startNo, target, targetNo) {
         if (response.status === 0) {
             printErrorOnUI("API nicht erreichbar...");
         } else if (response.status === 404 || response.status === 500) {
-            let err = JSON.parse(xmlhttp.responseText);
+            let err = await response.json();
             printErrorOnUI(err.error);
         }
 
