@@ -19,44 +19,50 @@ function getFormData() {
         printErrorOnUI(target.error);
     } else {
         clearErrorAfterValidResponse();
-        getComputedWayFromApi(start.name, start.houseNumber, target.name, target.houseNumber);
+        fetchGeoJsonData(start.name, start.houseNumber, target.name, target.houseNumber);
     }
 
 }
 
-function getComputedWayFromApi(start, startNo, target, targetNo) {
-    let xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            let way = JSON.parse(xmlhttp.responseText);
-            let geoObj = way.features;
-            geoLayer = L.geoJSON(geoObj, {
-                style: function (feature) {
-                    switch (feature.properties.name) {
-                        case 'Route':
-                            return {
-                                color: "#ff7800",
-                                weight: 3,
-                                opacity: 0.75
-                            };
-                    }
-                }
-            }).addTo(map);
-            computeHeuristic(geoObj, start, startNo, target, targetNo);
-        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
+async function fetchGeoJsonData(start, startNo, target, targetNo) {
+    try {
+        let url = `${globalAddress}/pathfinding?stStr=${start}&stNo=${startNo}&tgStr=${target}&tgNo=${targetNo}`;
+        const response = await fetch(url);
+        if (response.status === 0) {
             printErrorOnUI("API nicht erreichbar...");
-        } else if (xmlhttp.readyState === 4 && (xmlhttp.status === 404 || xmlhttp.status === 500)) {
-            // Not Found or Bad Request → Errorhandling von Backend
+        } else if (response.status === 404 || response.status === 500) {
             let err = JSON.parse(xmlhttp.responseText);
             printErrorOnUI(err.error);
-        } else {
-            // Cleanup on error
         }
-    }
 
-    let url = `${globalAddress}/pathfinding?stStr=${start}&stNo=${startNo}&tgStr=${target}&tgNo=${targetNo}`;
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
+        const geoJsonData = await response.json();
+        processGeoJson(geoJsonData);
+
+        const geoObj = geoJsonData.features;
+        computeHeuristic(geoObj, start, startNo, target, targetNo);
+
+    } catch (error) {
+        console.error('Error on calling GeoJSON-data: ', error);
+    }
+}
+
+function processGeoJson(geoJsonData) {
+    if (geoJsonData.type === 'FeatureCollection') {
+        geoLayer = L.geoJSON(geoJsonData.features, {
+            style: function (feature) {
+                switch (feature.properties.name) {
+                    case 'Route':
+                        return {
+                            color: "#ff7800",
+                            weight: 3,
+                            opacity: 0.75
+                        };
+                }
+            }
+        }).addTo(map);
+    } else {
+        console.error('Unerwartetes GeoJSON-Format');
+    }
 }
 
 /**
@@ -142,50 +148,42 @@ function parseAddress(address) {
     };
 }
 
-function getStreetListFromApi() {
-    let xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            let response = JSON.parse(xmlhttp.responseText);
-            let table = document.getElementById("streetList");
-            for (let street of response) {
-                table.innerHTML = table.innerHTML + buildListElement(street.id, street.name, street.children.length);
-            }
-        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
+async function fetchStreetListFromApi() {
+    try {
+        let url = `${globalAddress}/streets/list`;
+        const response = await fetch(url);
+        if (!response.ok) {
             console.log("API nicht erreichbar...");
-        } else {
-            // Cleanup on ERROR
         }
+
+        const data = await response.json();
+        let table = document.getElementById("streetList");
+        for (let street of data) {
+            table.innerHTML = table.innerHTML + buildListElement(street.id, street.name, street.children.length);
+        }
+    } catch (error) {
+        console.error('Error on calling GeoJSON-data: ', error);
     }
-
-    let url = `${globalAddress}/streets/list`;
-
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
 }
 
-function getAllBuildingsFromApi() {
-    let xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-            let response = JSON.parse(xmlhttp.responseText);
-            let table = document.getElementById("table-body");
-            let count = 1;
-            for (let street of response) {
-                table.innerHTML = table.innerHTML + buildTableElement(count, street);
-                count++;
-            }
-        } else if (xmlhttp.readyState === 4 && xmlhttp.status === 0) {
+async function fetchAllBuildingsFromApi() {
+    try {
+        let url = `${globalAddress}/streets/objects`;
+        const response = await fetch(url);
+        if (!response.ok) {
             console.log("API nicht erreichbar...");
-        } else {
-            // Cleanup on ERROR
         }
+
+        const data = await response.json();
+        let table = document.getElementById("table-body");
+        let count = 1;
+        for (let street of data) {
+            table.innerHTML = table.innerHTML + buildTableElement(count, street);
+            count++;
+        }
+    } catch (error) {
+        console.error('Error on calling GeoJSON-data: ', error);
     }
-
-    let url = `${globalAddress}/streets/objects`;
-
-    xmlhttp.open("GET", url, true);
-    xmlhttp.send();
 }
 
 function buildListElement(streetId, name, childElements) {
