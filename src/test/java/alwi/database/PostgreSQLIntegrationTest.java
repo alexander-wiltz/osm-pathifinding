@@ -2,16 +2,12 @@ package alwi.database;
 
 import de.hskl.itanalyst.alwi.PathfindingApplication;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
-import de.hskl.itanalyst.alwi.entities.Node;
-import de.hskl.itanalyst.alwi.repositories.INodeRepository;
 import de.hskl.itanalyst.alwi.services.NodeService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -30,9 +26,6 @@ public class PostgreSQLIntegrationTest {
 
     private List<NodeDTO> nodeDTOs;
     private NodeDTO nodeA;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Mock
     private EntityManager mockEntityManager;

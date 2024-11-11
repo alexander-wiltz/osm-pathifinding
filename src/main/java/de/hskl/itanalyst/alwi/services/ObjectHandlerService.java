@@ -4,9 +4,9 @@ import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
 import de.hskl.itanalyst.alwi.dto.WayDTO;
 import de.hskl.itanalyst.alwi.osmmodel.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
