@@ -5,12 +5,8 @@
         <file>${HOME_LOG}</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>logs/archived/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <!-- each archived file, size max 10MB -->
             <maxFileSize>10MB</maxFileSize>
-            <!-- total size of all archive files, if total size > 20GB,
-				it will delete old archived file -->
             <totalSizeCap>20GB</totalSizeCap>
-            <!-- 1 day to keep -->
             <maxHistory>100</maxHistory>
         </rollingPolicy>
         <encoder>
@@ -33,8 +29,6 @@
     </logger>
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
-    </root>
-    <root level="DEBUG">
         <appender-ref ref="FILE-ROLLING"/>
     </root>
 </configuration>
