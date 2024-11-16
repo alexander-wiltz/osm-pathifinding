@@ -1,4 +1,4 @@
-package alwi.database;
+package de.hskl.itanalyst.alwi.database;
 
 import de.hskl.itanalyst.alwi.PathfindingApplication;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;

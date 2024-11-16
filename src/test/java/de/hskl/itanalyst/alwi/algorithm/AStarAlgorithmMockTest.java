@@ -1,4 +1,4 @@
-package alwi.algorithm;
+package de.hskl.itanalyst.alwi.algorithm;
 
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import org.junit.jupiter.api.Test;

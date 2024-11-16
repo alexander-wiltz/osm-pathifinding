@@ -1,4 +1,4 @@
-package alwi.restcontroller;
+package de.hskl.itanalyst.alwi.restcontroller;
 
 import de.hskl.itanalyst.alwi.controller.NodeController;
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
