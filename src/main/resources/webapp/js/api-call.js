@@ -1,5 +1,5 @@
 let globalAddress = "http://localhost:8081";
-let geoLayer;
+let currentLayer;
 const toastLive = document.getElementById('liveToast');
 const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
 
@@ -48,7 +48,11 @@ async function fetchGeoJsonData(start, startNo, target, targetNo) {
 
 function processGeoJson(geoJsonData) {
     if (geoJsonData.type === 'FeatureCollection') {
-        geoLayer = L.geoJSON(geoJsonData.features, {
+        if (currentLayer) {
+            map.removeLayer(currentLayer);
+        }
+
+        currentLayer = L.geoJSON(geoJsonData.features, {
             style: function (feature) {
                 switch (feature.properties.name) {
                     case 'Route':
