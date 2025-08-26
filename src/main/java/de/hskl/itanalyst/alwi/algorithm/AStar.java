@@ -2,6 +2,8 @@ package de.hskl.itanalyst.alwi.algorithm;
 
 import de.hskl.itanalyst.alwi.dto.NodeDTO;
 import de.hskl.itanalyst.alwi.dto.StreetDTO;
+import de.hskl.itanalyst.alwi.entities.FactoryEdge;
+import de.hskl.itanalyst.alwi.entities.FactoryNode;
 import de.hskl.itanalyst.alwi.exceptions.WayNotComputableException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +70,32 @@ public class AStar {
         }
 
         return new Graph<>(nodes, connections);
+    }
+
+    /**
+     * Neu (Fabrik)
+     * Du nimmst FactoryNode & FactoryEdge und erzeugst Verbindungen nur aus factory_edge:
+     * Wenn edge.isBlocked oder from.isBlocked/to.isBlocked → nicht verbinden.
+     * Wenn bidirectional → beide Richtungen.
+     *
+     * @param nodes factory nodes
+     * @param edges factory edges
+     * @return graph
+     */
+    @Cacheable(value = "graph")
+    public Graph<FactoryNode> buildFactoryGraph(Collection<FactoryNode> nodes, Collection<FactoryEdge> edges) {
+        Map<Long, Set<Long>> connections = new HashMap<>();
+        nodes.forEach(n -> connections.put(n.getId(), new HashSet<>()));
+
+        for (FactoryEdge edge : edges) {
+            if (edge.isBlocked() || edge.getFromNode().isBlocked() || edge.getToNode().isBlocked()) continue;
+            connections.get(edge.getFromNode().getId()).add(edge.getToNode().getId());
+            if (Boolean.TRUE.equals(edge.isBidirectional())) {
+                connections.get(edge.getToNode().getId()).add(edge.getFromNode().getId());
+            }
+        }
+
+        return new Graph<>(new HashSet<>(nodes), connections);
     }
 
     /**

@@ -21,8 +21,6 @@ public class RouteFinder<T extends INode> {
         Map<T, RouteNode<T>> allNodes = new HashMap<>();
         Queue<RouteNode> openSet = new PriorityQueue<>();
 
-        // TODO: https://www.happycoders.eu/de/algorithmen/a-stern-algorithmus-java/#Laufzeit_mit_TreeSet
-
         RouteNode<T> start = new RouteNode<>(from, null, 0d, targetScorer.computeDistance(from, to));
         allNodes.put(from, start);
         openSet.add(start);
@@ -33,14 +31,10 @@ public class RouteFinder<T extends INode> {
             }
 
             RouteNode<T> next = openSet.poll();
-            if (log.isDebugEnabled()) {
-                log.debug("Looking at node: {}", next);
-            }
+            if (log.isDebugEnabled()) log.debug("Looking at node: {}", next);
 
             if (next.getCurrent().equals(to)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Found destination!");
-                }
+                if (log.isDebugEnabled()) log.debug("Found destination!");
                 List<T> route = new ArrayList<>();
                 RouteNode<T> current = next;
                 do {
@@ -62,9 +56,7 @@ public class RouteFinder<T extends INode> {
                     nextNode.setRouteScore(newScore);
                     nextNode.setEstimatedScore(newScore + targetScorer.computeDistance(connection, to));
                     openSet.add(nextNode);
-                    if(log.isDebugEnabled()) {
-                        log.debug("Found better route to node: {}", nextNode);
-                    }
+                    if (log.isDebugEnabled()) log.debug("Found better route to node: {}", nextNode);
                 }
             });
         }

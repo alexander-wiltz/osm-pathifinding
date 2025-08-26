@@ -36,3 +36,124 @@ Also die Zeit die benötigt wird, um diese Option zu nutzen.
 - Feldwege sind langsamer als Innerorts
 - Innerorts ist langsamer als Landstraßen
 - Landstraßen sind langsamer als Autobahnen
+
+## Neue Version für Fabriken
+
+### Anforderungen
+Die Anforderung ist, dass eine Fabrikhalle Koordinaten hat, die sich folgendermaßen ergeben: 
+Von unten nach oben sind die Pfosten mit Buchstaben gekennzeichnet und von links nach rechts mit Zahlen. Die Zahlen sind allerdings immer nur ungerade!
+
+Im Grunde müssen, also die Nodes der Straßenkreuzungen durch die Nodes der Fabrikwege ersetzt werden und die Straßen sind die Verbindungen zwischen den Nodes. 
+Es wird ein sinnvolles Datenmodell benötigt, um die Geo-Nodes in der Fabrik erfassen zu können, um diese später auch in einer UI hinzufügen oder entfernen zu können, als auch die Verbindungen zwischen den Nodes. 
+
+### Was ändert sich?
+| Baustein                 | Heute (OSM/Outdoor)      | Morgen (Halle/Indoor)                                       |
+| ------------------------ | ------------------------ | ----------------------------------------------------------- |
+| Node-Typ                 | `NodeDTO` (lat/lon)      | `FactoryNode` (x,y in m, `label`, `col_letter`, `row_odd`)  |
+| Interface                | `INode#getId()`          | **identisch**                                               |
+| Graph                    | `Graph<T extends INode>` | **identisch** (nur Aufbau anders)                           |
+| Scorer/Heuristik         | `HaversineFormula` (km)  | `PlanarFactoryScorer` (Meter → Sekunden via `/ maxSpeed`)   |
+| Kanten                   | Aus OSM-Straßen/Gebäude  | `FactoryEdge` (bidirectional, speed, modes, width, blocked) |
+| Kosten pro Kante         | Distanz / implizit       | **Zeit = Länge / Speed** (oder `cost_override`)             |
+| Blockierungen            | Gebäude/Polygone         | `is_blocked` auf Node/Edge                                  |
+| Start/Ziel               | Adresse vs. Straße       | `Label` (z. B. `D-11`) vs. nur Spalte/Zeile                 |
+| GeoJSON                  | WGS84/Map                | Lokal/`L.CRS.Simple` (oder transformiert)                   |
+| A\*-Kern (`RouteFinder`) | unverändert              | **unverändert**                                             |
+
+### FactoryNode-Entity
+```java
+@Entity
+@Table(name = "factory_node", uniqueConstraints = @UniqueConstraint(columnNames = {"col_letter","row_odd"}))
+public class FactoryNode implements INode {
+  @Id @GeneratedValue private Long id;
+
+  @Column(nullable=false, length=16) private String label;      // "D-11"
+  @Column(name="col_letter", nullable=false, length=1) private String colLetter; // "D"
+  @Column(name="row_odd",   nullable=false) private int rowOdd; // 11
+  @Column(name="x_m",       nullable=false) private double x;   // Meter
+  @Column(name="y_m",       nullable=false) private double y;
+  private String floor = "EG";
+  private String zone;
+  private String nodeType = "CROSSING";
+  private boolean isBlocked = false;
+
+  // INode:
+  @Override public Long getId() { return id; }
+
+  // Praktische Getter:
+  public String getLabel() { return label; } // "D-11"
+  public double getX() { return x; }
+  public double getY() { return y; }
+}
+```
+
+### FactoryEdge-Entity
+```java
+@Entity
+@Table(name = "factory_edge")
+public class FactoryEdge {
+  @Id @GeneratedValue private Long id;
+
+  @ManyToOne(optional=false) private FactoryNode fromNode;
+  @ManyToOne(optional=false) private FactoryNode toNode;
+
+  private boolean bidirectional = true;
+  private Double lengthM;      // optional (falls nicht gesetzt -> aus (x,y) berechnen)
+  private Double speedMps;     // optional (falls null -> default pro Modus/Zonenregel)
+  private String allowedModes = "ANY";
+  private Double widthM;
+  private boolean isBlocked = false;
+  private Double costOverride;
+}
+```
+
+### Kostenmodell - Neuer Scorer
+Vorher wurde eine Haversine-Formel für GeoKoordinaten eingesetzt. Aufgrund der x/y-Koordinaten wird ein PlanarFactoryScorer eingesetzt
+```java
+public class PlanarFactoryScorer implements IScorer<FactoryNode> {
+
+  private final double maxSpeedMps; // z.B. 2.0 m/s (AGV/Stapler schnellste erlaubte Kante)
+
+  public PlanarFactoryScorer(double maxSpeedMps) {
+    this.maxSpeedMps = maxSpeedMps;
+  }
+
+  // Heuristik: LUFTLINIE / MAX_SPEED  → zulässig (nicht überschätzend)
+  @Override
+  public double computeDistance(FactoryNode from, FactoryNode to) {
+    double dx = from.getX() - to.getX();
+    double dy = from.getY() - to.getY();
+    double euclidMeters = Math.sqrt(dx*dx + dy*dy);
+    return euclidMeters / maxSpeedMps; // Sekunden
+  }
+  
+  @Override
+  public FactoryNode findClosestNode(FactoryNode target, List<FactoryNode> candidates) {
+    FactoryNode best = null;
+    double bestD = Double.MAX_VALUE;
+    for (FactoryNode n : candidates) {
+      double d = Math.hypot(n.getX()-target.getX(), n.getY()-target.getY());
+      if (d < bestD) { bestD = d; best = n; }
+    }
+    return best;
+  }
+}
+```
+
+##### Vergleich:
+Haversine rechnet auf der Erdkugel und liefert Distanzen in km – indoor falsch und numerisch unnötig teuer.
+PlanarFactoryScorer ist euklidisch in Metern und teilt durch maxSpeed → Heuristik in Sekunden wie di Kantengewichte (Zeit). Damit bleibt A* optimal.
+
+
+### Stolpersteine & Tipps
+- Zulässige Heuristik: Teile immer durch die höchste erlaubte Geschwindigkeit → A* bleibt optimal.
+- Richtungswechsel/Abbiegen: Falls relevant, füge turn penalties an Knoten ein (kleiner Aufschlag auf routeScore).
+- Sperren im Betrieb: Nutze is_blocked (Node/Edge) → keine Topologie-Änderungen nötig, nur Flags.
+- Zonen-Defaults: Halte eine Tabelle/Config mode × zone → default_speed_mps.
+- UI-Komfort: Auto-Generator fürs Raster + Batch-Verbindungen spart viel Klickarbeit.
+
+### ToDo's
+- Mapper D-11 ↔ (x,y) bei gegebenem Rasterabstand
+- GraphBuilder für FactoryNode/FactoryEdge,
+- sowie ein Minimal-Controller für CRUD (Nodes/Edges) inkl. Validierungen.
+
