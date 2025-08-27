@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8"/>
+    <title>Werklayout – Leaflet (Meter-CRS)</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+    />
+    <style>
+        html, body, #map {
+            height: 100%;
+            margin: 0;
+        }
+
+        .legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: #fff;
+            padding: 8px 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+            font: 14px/1.3 system-ui, sans-serif;
+        }
+
+        .toolbar {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            z-index: 1000;
+            background: #fff;
+            padding: 8px 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font: 14px/1.3 system-ui, sans-serif;
+        }
+
+        .toolbar input, .toolbar button {
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .toolbar button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<div class="legend">
+    <b>Werklayout</b><br/>
+    1 Einheit = 1&nbsp;Meter<br/>
+    Raster: 15&nbsp;m × 20&nbsp;m<br/>
+    Subraster: 5&nbsp;m × 10&nbsp;m
+</div>
+
+<div class="toolbar">
+    <label>Route von: <input id="fromCode" placeholder="z.B. F089.4"/></label>
+    <label>nach: <input id="toCode" placeholder="z.B. H101.2"/></label>
+    <button id="btnRoute">Route berechnen</button>
+    <button id="btnToggleGrid">Raster an/aus</button>
+</div>
+
+<script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+></script>
+<script>
+    // -----------------------------
+    //  Konfiguration der Endpunkte
+    // -----------------------------
+    const API = {
+        nodes: '/api/factory/nodes/all',
+        edges: '/api/factory/edges/all',
+        route: '/api/factory/route'
+    };
+
+    // -----------------------------
+    //  Rendering-Layer
+    // -----------------------------
+    const layers = {
+        gridMajor: L.layerGroup(),
+        gridMinor: L.layerGroup(),
+        edges: L.layerGroup(),
+        nodes: L.layerGroup(),
+        route: L.geoJSON(null, {style: {weight: 5}})
+    };
+
+    // Globale Referenzen
+    let map, H = 100, W = 100; // werden aus Daten bestimmt (H=Höhe in m, W=Breite in m)
+
+    // Helper: CRS mit umgedrehter Y-Achse (y nach oben)
+    function createFlippedCRS(layoutHeightMeters) {
+        return L.extend({}, L.CRS.Simple, {
+            transformation: new L.Transformation(1, 0, -1, layoutHeightMeters) // x' = x; y' = -y + H
+        });
+    }
+
+    // Koordinaten-Helfer (Leaflet erwartet [lat, lng] → hier [y, x] in Metern)
+    const toLatLng = (xy) => [xy.y, xy.x];
+
+    // Gitter zeichnen
+    function drawGrid(opts) {
+        const major = layers.gridMajor;
+        const minor = layers.gridMinor;
+        major.clearLayers();
+        minor.clearLayers();
+
+        const CW = 15;  // Zellbreite
+        const CH = 20;  // Zellenhöhe
+        const SW = 5;   // Subzelle: 15/3
+        const SH = 10;  // Subzelle: 20/2
+
+        // Hauptgitter (dick)
+        for (let x = 0; x <= W; x += CW) {
+            L.polyline([[0, x], [H, x]].map(([y, x]) => [y, x]), {
+                weight: 1.5,
+                opacity: 0.6,
+                color: '#333'
+            }).addTo(major);
+        }
+        for (let y = 0; y <= H; y += CH) {
+            L.polyline([[y, 0], [y, W]].map(([y, x]) => [y, x]), {
+                weight: 1.5,
+                opacity: 0.6,
+                color: '#333'
+            }).addTo(major);
+        }
+
+        // Subgitter (dünn, gestrichelt)
+        for (let x = 0; x <= W; x += SW) {
+            if (x % CW === 0) continue; // Hauptlinie existiert schon
+            L.polyline([[0, x], [H, x]].map(([y, x]) => [y, x]),
+                {weight: 1, opacity: 0.35, color: '#666', dashArray: '4,6'}).addTo(minor);
+        }
+        for (let y = 0; y <= H; y += SH) {
+            if (y % CH === 0) continue;
+            L.polyline([[y, 0], [y, W]].map(([y, x]) => [y, x]),
+                {weight: 1, opacity: 0.35, color: '#666', dashArray: '4,6'}).addTo(minor);
+        }
+
+        // einfache Achsenbeschriftung entlang der Ränder (optional)
+        // Spalten-Buchstaben (A..Z..)
+        const cols = Math.round(W / CW);
+        for (let c = 0; c < cols; c++) {
+            const letter = colLabel(c);
+            L.marker([-4, c * CW + CW / 2], { // leicht unter 0 setzen (sichtbar unten)
+                icon: L.divIcon({className: 'grid-label', html: `<div style="font:12px system-ui;">${letter}</div>`})
+            }).addTo(major);
+        }
+        // Zeilen (ungerade 01,03,05,...)
+        const rows = Math.round(H / CH);
+        for (let r = 0; r < rows; r++) {
+            const odd = (r * 2 + 1).toString().padStart(2, '0');
+            L.marker([r * CH + CH / 2, W + 2], {
+                icon: L.divIcon({className: 'grid-label', html: `<div style="font:12px system-ui;">${odd}</div>`})
+            }).addTo(major);
+        }
+    }
+
+    function colLabel(index) {
+        // A..Z, AA..ZZ falls nötig
+        let label = '';
+        let n = index;
+        do {
+            label = String.fromCharCode(65 + (n % 26)) + label;
+            n = Math.floor(n / 26) - 1;
+        } while (n >= 0);
+        return label;
+    }
+
+    // Nodes & Edges zeichnen
+    function drawNodes(nodes) {
+        layers.nodes.clearLayers();
+        const group = layers.nodes;
+
+        nodes.forEach(n => {
+            const marker = L.circleMarker([n.y, n.x], {
+                radius: 5, weight: 1.5, color: '#0b7285', fillColor: '#15aabf', fillOpacity: 0.7
+            }).bindTooltip(`
+          <b>${n.name ? n.name : n.code}</b><br/>
+          Code: ${n.code}<br/>
+          x=${n.x.toFixed(2)} m, y=${n.y.toFixed(2)} m
+        `, {direction: 'top', offset: [0, -6]});
+            marker.addTo(group);
+        });
+    }
+
+    function drawEdges(edges, nodeIndex) {
+        layers.edges.clearLayers();
+        const group = layers.edges;
+
+        edges.forEach(e => {
+            const a = nodeIndex.get(e.fromId);
+            const b = nodeIndex.get(e.toId);
+            if (!a || !b) return;
+            L.polyline([[a.y, a.x], [b.y, b.x]], {
+                weight: 2, opacity: 0.5, color: '#868e96'
+            }).addTo(group);
+            if (e.bidirectional) {
+                // optional: Richtungspfeile via Plugin (hier weggelassen)
+            }
+        });
+    }
+
+    // Route zeichnen (GeoJSON aus Backend)
+    function drawRoute(geojson) {
+        layers.route.clearLayers();
+        layers.route.addData(geojson);
+        layers.route.setStyle({color: '#fa5252', weight: 5, opacity: 0.9});
+        if (layers.route.getBounds && layers.route.getBounds().isValid()) {
+            map.fitBounds(layers.route.getBounds().pad(0.1));
+        }
+    }
+
+    // Daten abrufen & Karte aufsetzen
+    (async function init() {
+        const [nodes, edges] = await Promise.all([
+            fetch(API.nodes).then(r => r.json()),
+            fetch(API.edges).then(r => r.json())
+        ]);
+
+        // Ausdehnung bestimmen
+        const maxX = Math.max(...nodes.map(n => n.x), 0);
+        const maxY = Math.max(...nodes.map(n => n.y), 0);
+        W = Math.max(maxX, 60);  // min. Breite, falls leer
+        H = Math.max(maxY, 40);  // min. Höhe
+
+        // Karte erstellen (CRS mit y-Flip)
+        map = L.map('map', {
+            crs: createFlippedCRS(H),
+            minZoom: -2,
+            maxZoom: 4,
+            zoomSnap: 0.25,
+            preferCanvas: true,
+            attributionControl: false
+        });
+
+        // Grenzen (unten-links [0,0], oben-rechts [H, W]) – mit y-Flip bereits korrekt
+        const bounds = [[0, 0], [H, W]];
+        map.fitBounds(bounds);
+        map.setMaxBounds([[-H * 0.2, -W * 0.2], [H * 1.2, W * 1.2]]);
+
+        // Raster
+        drawGrid();
+        layers.gridMinor.addTo(map);
+        layers.gridMajor.addTo(map);
+
+        // Nodes & Edges
+        const nodeIndex = new Map(nodes.map(n => [n.id, n]));
+        drawNodes(nodes);
+        drawEdges(edges, nodeIndex);
+        layers.edges.addTo(map);
+        layers.nodes.addTo(map);
+        layers.route.addTo(map);
+
+        // Layer Control
+        L.control.layers(
+            null,
+            {
+                'Route': layers.route,
+                'Edges': layers.edges,
+                'Nodes': layers.nodes,
+                'Raster (Sub)': layers.gridMinor,
+                'Raster (Haupt)': layers.gridMajor
+            },
+            {collapsed: true}
+        ).addTo(map);
+
+        // Interaktion: Route anfordern
+        document.getElementById('btnRoute').addEventListener('click', async () => {
+            const from = document.getElementById('fromCode').value.trim();
+            const to = document.getElementById('toCode').value.trim();
+            if (!from || !to) {
+                alert('Bitte beide Codes eingeben, z. B. F089.4 → H101.2');
+                return;
+            }
+
+            const res = await fetch(API.route, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({from, to, modes: ['ANY']})
+            });
+            if (!res.ok) {
+                alert('Routing fehlgeschlagen');
+                return;
+            }
+            const geojson = await res.json();
+            drawRoute(geojson);
+        });
+
+        // Raster an/aus
+        let gridVisible = true;
+        document.getElementById('btnToggleGrid').addEventListener('click', () => {
+            gridVisible = !gridVisible;
+            if (gridVisible) {
+                layers.gridMinor.addTo(map);
+                layers.gridMajor.addTo(map);
+            } else {
+                map.removeLayer(layers.gridMinor);
+                map.removeLayer(layers.gridMajor);
+            }
+        });
+
+        // Klick: Koordinaten anzeigen (Meter)
+        map.on('click', (e) => {
+            const y = e.latlng.lat; // Achtung: lat = y (Meter), lng = x (Meter)
+            const x = e.latlng.lng;
+            L.popup()
+                .setLatLng([y, x])
+                .setContent(`x=${x.toFixed(2)} m, y=${y.toFixed(2)} m`)
+                .openOn(map);
+        });
+    })();
+
+    const API_STATUS = '/api/factory/edges/status';      // GET (optional ?modes=ANY,AGV)
+    const API_EDGE = (id) => `/api/factory/edges/${id}`;
+
+    // Status → Stil
+    function edgeStyleByStatus(status) {
+        switch (status) {
+            case 'ACTIVE':
+                return {color: '#2b8a3e', weight: 3, opacity: 0.9};   // grün
+            case 'BLOCKED_EDGE':
+                return {color: '#fa5252', weight: 3, opacity: 0.9};   // rot
+            case 'BLOCKED_NODE_FROM':
+            case 'BLOCKED_NODE_TO':
+                return {color: '#f59f00', weight: 3, opacity: 0.9};   // orange
+            case 'DISALLOWED_MODE':
+                return {color: '#7048e8', weight: 3, opacity: 0.7, dashArray: '6,6'}; // violett gestrichelt
+            default:
+                return {color: '#868e96', weight: 2, opacity: 0.5};
+        }
+    }
+
+    // Holt Edges mit Status
+    async function fetchEdgesWithStatus(modes = []) {
+        const qs = modes.length ? `?modes=${encodeURIComponent(modes.join(','))}` : '';
+        const res = await fetch(API_STATUS + qs);
+        if (!res.ok) throw new Error('Konnte Edge-Status nicht laden');
+        return res.json();
+    }
+
+    // Zeichnet Edges inkl. Klick-Handler für Editor
+    async function drawEdgesWithStatus(nodeIndex, modes = []) {
+        layers.edges.clearLayers();
+        const edges = await fetchEdgesWithStatus(modes);
+
+        edges.forEach(e => {
+            const a = nodeIndex.get(e.fromId);
+            const b = nodeIndex.get(e.toId);
+            if (!a || !b) return;
+
+            const poly = L.polyline([[a.y, a.x], [b.y, b.x]], edgeStyleByStatus(e.status));
+            poly.addTo(layers.edges);
+
+            poly.on('click', () => openEdgeEditor(e, poly));
+        });
+    }
+</script>
+</body>
+</html>

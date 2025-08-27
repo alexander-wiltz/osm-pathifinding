@@ -1,5 +1,6 @@
 package de.hskl.itanalyst.alwi.controller;
 
+import de.hskl.itanalyst.alwi.dto.CreateNodeRequest;
 import de.hskl.itanalyst.alwi.dto.FactoryNodeResponse;
 import de.hskl.itanalyst.alwi.services.FactoryNodeService;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +14,6 @@ public class FactoryNodeController {
 
     public FactoryNodeController(FactoryNodeService nodeService) {
         this.nodeService = nodeService;
-    }
-
-    public static record CreateNodeRequest(String code, String name, String floor, String zone) {
     }
 
     @PostMapping

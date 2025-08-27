@@ -1,5 +1,6 @@
 package de.hskl.itanalyst.alwi.controller;
 
+import de.hskl.itanalyst.alwi.dto.CreateEdgeRequest;
 import de.hskl.itanalyst.alwi.dto.FactoryEdgeResponse;
 import de.hskl.itanalyst.alwi.services.FactoryEdgeService;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +14,6 @@ public class FactoryEdgeController {
 
     public FactoryEdgeController(FactoryEdgeService edgeService) {
         this.edgeService = edgeService;
-    }
-
-    public static record CreateEdgeRequest(
-            Long fromId, Long toId, Boolean bidirectional,
-            Double speedMps, Double lengthM, Double costOverrideSec,
-            String allowedModes, Boolean blocked) {
     }
 
     @PostMapping
