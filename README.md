@@ -144,6 +144,14 @@ public class PlanarFactoryScorer implements IScorer<FactoryNode> {
 Haversine rechnet auf der Erdkugel und liefert Distanzen in km – indoor falsch und numerisch unnötig teuer.
 PlanarFactoryScorer ist euklidisch in Metern und teilt durch maxSpeed → Heuristik in Sekunden wie di Kantengewichte (Zeit). Damit bleibt A* optimal.
 
+### Hinweise & Design-Entscheidungen
+- Subindex-Position: Bei F089.4 platzieren wir den Node im Mittelpunkt des gewählten Teilrechtecks (präzise, UI-freundlich). Ohne Subindex landet der Node exakt auf der Ecke (Basis-Koordinate).
+- Validierung: Reihen sind immer ungerade. Parser wirft bei Verstoß eine verständliche Exception.
+- Skalierung/Offset: GridMapper(0,0) setzt A01 = (0,0). Falls die Halle relativ verschoben ist, können originX/Y gesetzt werden.
+- Kostenmodell: Kantenkosten sind Zeit in Sekunden (Länge / m/s oder Override). Heuristik ist ebenfalls Zeit (zulässig, da durch Max-Speed geteilt).
+- Modi/Sperren: allowedModes und blocked wirken beim Graph-Build. So kannst du zur Laufzeit Bereiche sperren, ohne die Topologie zu ändern.
+- Namen: FactoryNode.name ist frei (z. B. „Anfahrplatz 7“). Der maschinenlesbare Code bleibt in code.
+- Leaflet: Mit L.CRS.Simple kannst du die GeoJSON-Line direkt rendern (Einheiten = Meter).
 
 ### Stolpersteine & Tipps
 - Zulässige Heuristik: Teile immer durch die höchste erlaubte Geschwindigkeit → A* bleibt optimal.

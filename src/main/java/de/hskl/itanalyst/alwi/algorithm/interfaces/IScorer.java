@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface IScorer <T> {
     double computeDistance(T from, T to);
-    T findClosestNode(T targetNode, List<T> streetNodes);
+    T findClosestNode(T targetNode, List<T> nodes);
 }

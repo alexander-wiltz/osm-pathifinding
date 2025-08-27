@@ -88,10 +88,10 @@ public class AStar {
         nodes.forEach(n -> connections.put(n.getId(), new HashSet<>()));
 
         for (FactoryEdge edge : edges) {
-            if (edge.isBlocked() || edge.getFromNode().isBlocked() || edge.getToNode().isBlocked()) continue;
-            connections.get(edge.getFromNode().getId()).add(edge.getToNode().getId());
+            if (edge.isBlocked() || edge.getFrom().isBlocked() || edge.getTo().isBlocked()) continue;
+            connections.get(edge.getFrom().getId()).add(edge.getTo().getId());
             if (Boolean.TRUE.equals(edge.isBidirectional())) {
-                connections.get(edge.getToNode().getId()).add(edge.getFromNode().getId());
+                connections.get(edge.getTo().getId()).add(edge.getFrom().getId());
             }
         }
 

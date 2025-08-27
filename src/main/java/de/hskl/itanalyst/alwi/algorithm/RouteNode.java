@@ -10,7 +10,7 @@ import java.util.StringJoiner;
 @Getter
 @Setter
 @AllArgsConstructor
-public class RouteNode <T extends INode> implements Comparable<RouteNode> {
+public class RouteNode<T extends INode> implements Comparable<RouteNode> {
 
     private final T current;
     private T predecessor;

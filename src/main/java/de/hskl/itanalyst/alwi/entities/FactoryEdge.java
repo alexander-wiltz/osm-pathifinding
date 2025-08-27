@@ -8,22 +8,54 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "factory_edge")
+@Table(name = "factory_edge",
+        indexes = {
+                @Index(columnList = "from_node_id"),
+                @Index(columnList = "to_node_id")
+        })
+/**
+ * FactoryEdge trägt alle Routing-relevanten Parameter (Richtung, Geschwindigkeit, Sperrung, Modusfilter).
+ */
 public class FactoryEdge {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(optional = false)
-    private FactoryNode fromNode;
-    @ManyToOne(optional = false)
-    private FactoryNode toNode;
+    @JoinColumn(name = "from_node_id")
+    private FactoryNode from;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "to_node_id")
+    private FactoryNode to;
+
+    /**
+     * true → zusätzlich die Gegenrichtung erzeugen
+     */
+    @Column(nullable = false)
     private boolean bidirectional = true;
-    private Double lengthM;      // optional (falls nicht gesetzt -> aus (x,y) berechnen)
-    private Double speedMps;     // optional (falls null -> default pro Modus/Zonenregel)
+
+    /**
+     * Optional: feste Länge (m); wenn null → aus (x,y) berechnen
+     */
+    private Double lengthM;
+
+    /**
+     * Optional: Geschwindigkeit (m/s); wenn null → Default
+     */
+    private Double speedMps;
+
+    /**
+     * Optional: fester Zeitwert (Sekunden) für diese Kante
+     */
+    private Double costOverrideSec;
+
+    /**
+     * Modusfilter, z.B. "ANY,AGV,FORKLIFT"
+     */
+    @Column(length = 64)
     private String allowedModes = "ANY";
-    private Double widthM;
-    private boolean isBlocked = false;
-    private Double costOverride;
+
+    @Column(name = "is_blocked")
+    private boolean blocked = false;
 }

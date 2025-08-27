@@ -3,7 +3,10 @@ package de.hskl.itanalyst.alwi.algorithm;
 import de.hskl.itanalyst.alwi.algorithm.interfaces.INode;
 import de.hskl.itanalyst.alwi.exceptions.NodeNotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +16,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class Graph<T extends INode> {
 
+    @Getter
     private final Set<T> nodes;
     private final Map<Long, Set<Long>> connections;
 
@@ -34,6 +38,10 @@ public class Graph<T extends INode> {
         }
     }
 
+    public Set<Long> getConnections(Long id) {
+        return connections.getOrDefault(id, Collections.emptySet());
+    }
+
     /**
      * get connections of node
      *
@@ -41,7 +49,7 @@ public class Graph<T extends INode> {
      * @return list with generic node objects
      */
     public Set<T> getConnections(T node) {
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug("Looking for NodeId={}", node.getId());
         }
         return connections
