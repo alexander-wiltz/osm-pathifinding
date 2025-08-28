@@ -97,14 +97,14 @@ public class RouteFinder<T extends INode> {
 
     private RouteFactoryNode<T> getOrCreate(Map<Long, RouteFactoryNode<T>> all, T current, RouteFactoryNode<T> previous,
                                             double routeScore, double estimatedScore) {
-        return all.compute(current.getId(), (id, rn) -> {
-            if (rn == null || routeScore < rn.getRouteScore()) {
-                rn = new RouteFactoryNode<>(current);
-                rn.setPrevious(previous);
-                rn.setRouteScore(routeScore);
-                rn.setEstimatedScore(estimatedScore);
+        return all.compute(current.getId(), (id, routeFactoryNode) -> {
+            if (routeFactoryNode == null || routeScore < routeFactoryNode.getRouteScore()) {
+                routeFactoryNode = new RouteFactoryNode<>(current);
+                routeFactoryNode.setPrevious(previous);
+                routeFactoryNode.setRouteScore(routeScore);
+                routeFactoryNode.setEstimatedScore(estimatedScore);
             }
-            return rn;
+            return routeFactoryNode;
         });
     }
 

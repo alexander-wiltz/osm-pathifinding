@@ -35,6 +35,6 @@ public class AStarFactory<T extends INode & XY, E extends FactoryGraphBuilder.Ed
         PlanarHeuristicScorer<T> targetScorer = new PlanarHeuristicScorer<>(heuristicMaxSpeedMps, heuristicUseManhattan);
 
         RouteFinder<T> routeFinder = new RouteFinder<>(result.graph, nextScorer, targetScorer);
-        return routeFinder.findRoute(from, to);
+        return routeFinder.findFactoryRoute(from, to);
     }
 }
